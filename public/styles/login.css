@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&family=Assistant:wght@200..800&family=Atkinson+Hyperlegible+Mono:ital,wght@0,200..800;1,200..800&display=swap');
+
+
+*{
+   font-family: "Atkinson Hyperlegible Mono", sans-serif;
+}
+
+body {
+    background-color: rebeccapurple;
+    margin: 0;
+    padding: 0;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 8rem auto;
+    height: auto;
+    width: 30%;
+    background-color: white;
+    padding: 3rem 2rem 1rem 2rem;
+    border-radius: 8px;
+    border: 3px solid #DB8DD0;
+}
+
+.username, .password {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 0 auto;
+    /* font-size: 2vh; */
+}
+
+.username h5, .password h5 {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.username input, .password input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.submit {
+    width: 50%;
+    margin-top: 3rem;
+    border: 3px solid #DB8DD0; 
+    border-radius: 6px;
+}
+
+.submit button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color:darkmagenta;  
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.submit button:hover {
+    background-color: #0056b3;
+}
+
+
+.changePass{
+    display: flex;
+    margin-top: 2rem;
+    width: 40%;
+}
+
+.change-button{
+    margin: 0 auto;
+    background: none;
+    border: none;
+    outline: none;
+    background-color:#DB8DD0;
+    border-radius: 7px;
+    padding: .3rem;
+    color:darkmagenta;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .main {
+        width: 80%;
+        margin: 4rem auto;
+    }
+}

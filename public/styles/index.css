@@ -1,0 +1,392 @@
+@import url('https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&family=Assistant:wght@200..800&family=Atkinson+Hyperlegible+Mono:ital,wght@0,200..800;1,200..800&display=swap');
+
+    /* style="color: #A5158C; font-weight: bold;" */
+
+*{
+   margin: 0px;
+   padding: 0px;
+   box-sizing: border-box;
+   font-family: "Atkinson Hyperlegible Mono", sans-serif;
+}
+
+.bill{
+    position: relative;
+    border: 2px solid #A5158C;
+    border-radius: 3px;
+    width: 60%;
+    height: auto;
+    margin: 0 auto;
+    font-size: 14px;
+}
+
+
+                /* ------------ 1st logo div -------------- */
+                
+.logo-info{
+    border-bottom: 1px solid #A5158C;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    font-size: 15px;
+}
+
+.prayer{
+    text-align: center;
+    margin-top: 1%;
+    margin-bottom: 1%;
+}
+
+.logo-on-bill{
+    width: 30%;
+    height: 10%;
+    margin: 0 auto;
+}
+
+
+.store-address{
+    text-align: center;
+    padding: 1%;
+}
+
+                /* ---------- Invoice Info 2nd div ---------- */
+
+.invoice-info{
+    display: flex;
+    flex-direction: column;
+    /* border-bottom: solid #A5158C 1px; */
+    height: auto;
+    padding: 10px;
+    gap: .6rem;
+    margin: 0 auto; 
+}
+
+
+.row{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; 
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header{
+    border-radius: 3px;
+}
+
+.row label{
+    width: 15%;
+    margin-right: 2%;
+}
+
+.line-input{
+    width: 20%;
+    margin-right: 8%;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid black;
+}
+
+#name{
+    width: 67%;
+}
+
+
+                /* ---------- Product info 3rd div ----------- */
+
+
+.grid-box {
+    display: grid;
+    grid-template-columns: 10% 70% 15%;
+    grid-template-rows: auto 1fr;
+    justify-content: center;
+    gap: 2%;
+    height: auto;
+    width: 100%;
+}
+
+.grid-item {
+    padding: .4rem;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.header{
+    font-size: 15px;
+    text-align: center;
+}
+
+.description{
+    height: auto;
+    border: 2px solid #DB8DD0;
+    border-radius: 3px;
+}
+
+.description input[type = "text"]{
+    text-align: center;
+}
+
+
+.number-col , .product-col, .money-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;   
+    gap: .5rem;
+}
+
+.product-col input[type = "text"]{
+    text-align: start;
+}
+
+.Serial{
+    border: none;
+    outline: none;
+    background-color: rgb(212, 211, 211);
+    height: 20px;
+    width: 20px;
+    margin: 0 auto;
+    border-radius: 5px;
+}
+
+
+.product-desc, .money-each{
+    border: none;
+    outline: none;
+    border-bottom: 1px dotted black;
+    width: 100%;
+    height: 20px;
+    font-size: 15px;
+}
+
+
+.money-each{
+    border: none;
+    outline: none;
+    border-bottom: 1px dotted black;
+    width: 100%;
+    font-size: 15px;
+    gap: 30px;
+}
+
+
+
+                    /* --------- Amount Summary Store Timings ---------- */
+
+.amount-summary-store-timings{
+    margin: 1.3rem .3rem .3rem .3rem;
+    width: auto;
+    height: auto;
+    border: 2px solid #DB8DD0;
+    border-radius: 3px;
+    display: grid;
+    grid-template-columns: 5fr 2fr 1.28fr;
+    padding: .3rem 0 .5rem 0;
+}
+
+.store-timings{
+    margin-left: .3rem;
+}
+
+.money-info{
+    display: grid;
+    align-items: end;
+    justify-items: end;
+    padding-right: .5rem;
+}
+
+.amount-summary{
+    display: grid;
+    align-items: end;
+    justify-items: end;
+    padding-right: .2rem;
+}
+
+.grid-money {                     
+    border-bottom: 1px solid #333;
+    display: grid;
+    align-items: end;
+    justify-items: end;
+    padding-right: .5rem;
+    width: 80%;
+}
+
+.grid-money input[type="text"] {
+    width: 100%;
+    border: none;
+    outline: none;
+    text-align: center;
+    background: transparent;
+    font-size: 14px;
+}
+
+
+                        /* ------- Buttons -------- */
+
+
+.print-button, .new_bill{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60%;
+    height: auto;
+    border: 2px solid black;
+    margin: .5rem auto;
+    font-size: 20px;
+    border: none;
+    outline: none;
+    background: none;
+    background-color: #33b752;
+    color: white;
+    padding: .6rem;
+    border-radius: 5px;
+}
+
+.new_bill{
+    background-color: #DB8DD0;
+    color: #A5158C;
+    font-weight: 700;
+}
+
+
+.submit-btn{
+    display: flex;
+    width: 5rem;
+    height: 2rem;
+    background: none ;
+    border: none;
+    outline: none;
+    background-color: #56021F;
+    border-radius: 4.5px;
+    margin: 1.5rem auto 0 auto;
+}
+
+.submit-btn button{
+    border: none;
+    outline: none;
+    background: none;
+    color: #F4CCE9;
+    width: 5rem;
+    height: 2rem;
+    font-size: 15px;
+}
+
+
+
+                    /* ---------- Whiteboard Container ---------- */
+
+
+.whiteboard-container {
+  width: 60%;         /* 👈 reduce width */
+  margin: 10rem auto;  /* center horizontally */
+  border: 2px solid black;
+}
+
+.whiteboard-frame {
+  width: 100%;
+  height: 500px;
+  border: none;
+}
+
+
+                /* -------- Note -------- */
+
+.note{
+    border: none;
+    margin: 1rem .3rem .3rem .3rem ;
+    padding: .4rem;
+    border-radius: 3px;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    background-color: #DB8DD0;
+    color: #A5158C;
+    font-weight: bold;
+}
+
+#response{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem auto; 
+    color: green; 
+    font-weight: bold;
+}
+
+
+        /* ----------- Responsive ---------- */
+
+
+@media (min-width : 500px) and (max-width:1200px){
+    .bill {
+        width: 80%;
+    }
+
+    .print-button, .new_bill{
+        width: 80%;
+    }
+
+    .store-address{
+        font-size: 12px;
+    }
+
+    .whiteboard-container{
+        width: 100%;
+    }
+}
+
+@media (max-width : 500px) {
+    .bill{
+        width: 100%;
+        font-size: 12px;
+    }
+
+    .print-button, .new_bill{
+        font-size: 20px;
+        padding: 0;
+        width: 100%;
+    }
+
+    .logo-info{
+        display: none;
+    }
+
+    .row label{
+        font-size: 10px;
+    }
+
+    .row .line-input{
+        font-size: 9px;
+    }
+
+    .header{
+        font-size: 10px;
+    }
+
+    .money-col input[type='text']{
+        font-size: 9px;
+    }
+
+    .amount-summary input[type="text"]{
+        font-size: 9px;
+    }
+
+    .amount-summary-store-timings{
+        font-size: 10px;
+    }
+
+    .whiteboard-container{
+        width: 100%;
+    }
+}
+
+@media print {
+    .bill{
+        width: 100%;
+    }
+
+    .submit-btn{
+        display: none;
+    }
+}

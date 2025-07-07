@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/index.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&family=Atkinson+Hyperlegible+Mono:ital,wght@0,200..800;1,200..800&display=swap');
+    </style>
+    <title>Vijay Tailors</title>
+</head>
+<body>
+    <form action="/new-bill" method="post">
+        <div class="newBill">
+            <button class="new_bill">New Bill</button>
+        </div>
+    </form>
+    
+    <form id="myForm" action="/submit" method="post">
+    <div class="bill">
+        <div class="logo-info">
+            <p style="color: #A5158C; font-weight: bold;" class="prayer">|| जय गुरुदेव ||</p>
+            <img class="logo-on-bill" src="/images/logo.png" alt="">
+            <pre style="color: #A5158C; font-weight: bold;" class="store-address">ए-1, मंगलश्री अपार्टमेंट, तिलक नगर, इंदौर      टेलीफोन: 2497963, मोबाइल: 7693057579</pre>
+        </div>
+
+        <div class="invoice-info">
+            <div class="row">
+                <label style="color: #A5158C; font-weight: bold;">बिल नंबर</label> 
+                <input type="text" name="invoice_number" 
+                value="<%= locals.invoice_number %>" class="line-input" readonly>
+
+                <label style="color: #A5158C; font-weight: bold;">तारिक</label> 
+                <input type="date" name="invoice_date" class="line-input">
+            </div>
+
+            <div class="row">
+                <label style="color: #A5158C; font-weight: bold;">डिलीवरी दिनांक</label> 
+                <input type="date" name="delivery_date" class="line-input">
+
+                <label style="color: #A5158C; font-weight: bold;">फ़ोन नं.</label> 
+                <input type="number" name="customer_contact" class="line-input">
+            </div>
+
+            <div class="row">
+                <label style="color: #A5158C; font-weight: bold;">श्री/श्रीमती/कुमारी</label> 
+                <input type="text" name="customer_name" class="line-input" id="name">
+            </div>
+        </div>
+
+        <div class="products-heading grid-box">
+            <div style="background-color: #DB8DD0;" class="grid-item header Number-grid">
+                <pre style="color: #A5158C; font-weight: bold;">नग</pre>
+            </div>
+            <div style="background-color: #DB8DD0;" class="grid-item header product-grid">
+                <pre style="color: #A5158C; font-weight: bold;">विवरण</pre>
+            </div>
+            <div style="background-color: #DB8DD0;" class="grid-item header Money-grid">
+                <pre style="color: #A5158C; font-weight: bold;">रकम</pre>
+            </div>
+
+            <div class="grid-item description number-col">
+                <input class="Serial" name="serial1" type="text">
+                <input class="Serial" name="serial2" type="text">
+                <input class="Serial" name="serial3" type="text">
+                <input class="Serial" name="serial4" type="text">
+                <input class="Serial" name="serial5" type="text">
+                <input class="Serial" name="serial6" type="text">
+                <input class="Serial" name="serial7" type="text">
+                <input class="Serial" name="serial8" type="text">
+            </div>
+
+            <div class="grid-item description product-col">
+                <input class="product-desc" name="product-desc1" type="text">
+                <input class="product-desc" name="product-desc2" type="text">
+                <input class="product-desc" name="product-desc3" type="text">
+                <input class="product-desc" name="product-desc4" type="text">
+                <input class="product-desc" name="product-desc5" type="text">
+                <input class="product-desc" name="product-desc6" type="text">
+                <input class="product-desc" name="product-desc7" type="text">
+                <input class="product-desc" name="product-desc8" type="text">
+                
+                
+                <div class="bill-bottom-info">
+                    
+                    
+                </div>
+            </div>
+            
+            <div class="grid-item description money-col">
+                <input class="money-each" id="money_1" name="money-for-product-1" type="text">
+                <input class="money-each" id="money_2" name="money-for-product-2" type="text">
+                <input class="money-each" id="money_3" name="money-for-product-3" type="text">
+                <input class="money-each" id="money_4" name="money-for-product-4" type="text">
+                <input class="money-each" id="money_5" name="money-for-product-5" type="text">
+                <input class="money-each" id="money_6" name="money-for-product-6" type="text">
+                <input class="money-each" id="money_7" name="money-for-product-7" type="text">
+                <input class="money-each" id="money_8" name="money-for-product-8" type="text">
+                
+            </div>
+        </div>
+        
+        <div class="submit-btn">
+            <button class="submit-button" type="submit">save</button>
+        </div>
+
+        <div id="response"></div>
+
+        <div class="amount-summary-store-timings">
+            <div class="store-timings">
+                <p style="color: #A5158C; font-weight: bold;">प्रातः 10 से  1</p>
+                <p style="color: #A5158C; font-weight: bold;">दोपहर : 3 से  8</p>
+                <p style="color: #A5158C; font-weight: bold;">डिलीवरी एंड बुकिंग : शाम 4 से  8</p>
+            </div>
+            
+            <div class="money-info">
+                <p style="color: #A5158C; font-weight: bold;" class="money-info-total">टोटल</p>
+                <p style="color: #A5158C; font-weight: bold;" class="money-info-advance">50% एडवांस</p>
+                <p style="color: #A5158C; font-weight: bold;" class="money-info-rem">बाकी</p>
+            </div>
+            
+            <div class="amount-summary">
+                <div class="grid-money total">
+                    <input type="text" id="money-total" value="<%= locals.totalBill %>" name="money_total">
+                </div>
+                <div class="grid-money advance">
+                    <input type="text" name ="money_advance">
+                </div>
+                <div class="grid-money remain">
+                    <input type="text" value= "<%= locals.remainingBill %> " name="money_remaining">
+                </div>
+            </div>
+        </div>
+
+        <div class="note">
+            <p>लेबर की वजह से डिलीवरी दिनांक मे परिवर्तन हो सकता है | एक महीने पश्चात् कपड़ो की जवाबदारी हमारी नहीं रहेगी </p>
+        </div>
+    </div>
+    </form> 
+
+    <div class="print-bill">
+        <button class="print-button" onclick="printBill()">Print</button>
+    </div>
+        
+
+
+    <div class="whiteboard-container">
+        <h2 style="text-align:center; font-family:'Atkinson Hyperlegible Mono', sans-serif;">Whiteboard</h2>
+
+        <!-- <iframe 
+            src="https://excalidraw.com" 
+            class="whiteboard-frame">
+        </iframe> -->
+        <%- include('white-test.ejs') %>
+
+    </div>
+
+    <script>
+        window.onload = function () {
+            const billElement = document.querySelector(".newBill");
+            if (billElement) {
+                billElement.scrollIntoView({ behavior: "smooth" }); // or "auto" for instant scroll
+            }
+        };
+
+        function calculateTotal(){
+            let total = 0;
+            for (let i = 1; i <= 8; i++) {
+                const input = document.getElementById(`money_${i}`);
+                if (input && input.value) {
+                    const val = parseFloat(input.value);
+                    if (!isNaN(val)) {
+                        total += val;
+                    }
+                }
+            }
+            document.getElementById("money-total").value = total.toFixed(2);
+            calculateRemaining();
+        }  
+
+        function calculateRemaining(){
+            const totalMoney = document.getElementById("money-total");
+            const advanceMoney = document.querySelector('input[name = "money_advance"]');
+            const remainingMoney = document.querySelector('input[name = "money_remaining"]');
+
+            if(totalMoney && advanceMoney && remainingMoney){
+                const total = parseFloat(totalMoney.value) || 0;
+                const advance = parseFloat(advanceMoney.value) || 0;
+                const remamining = parseFloat(remainingMoney.value) || 0;
+                
+                const amount_remain = total - advance;
+                remainingMoney.value = amount_remain.toFixed(2);
+            }
+        }
+
+        for (let i = 1; i <=8; i++) {
+            const input = document.getElementById(`money_${i}`);
+            if(input){
+                input.addEventListener("input", calculateTotal);
+            }
+        }
+
+        const advance_money = document.querySelector('input[name = "money_advance"]');
+        if(advance_money){
+            advance_money.addEventListener("input", calculateRemaining);
+        }
+
+        calculateTotal();
+
+        document.getElementById('myForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
+            
+            const responseDiv = document.getElementById('response');
+            const submitButton = document.querySelector('.submit-button');
+            
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = 'Saving...';
+            responseDiv.innerHTML = '<p style="color: blue;">Processing...</p>';
+            
+            // Get form data
+            const formData = new FormData(this);
+            
+            // Convert FormData to URLSearchParams for proper encoding
+            const params = new URLSearchParams();
+            for (let [key, value] of formData.entries()) {
+                params.append(key, value);
+            }
+            
+            // Send AJAX request
+            fetch('/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: params.toString()
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    responseDiv.innerHTML = `<p style="color: green; font-weight: bold;">${data.message} - Bill No: ${data.bill_num}</p>`;
+                    // Optional: Clear form or redirect after success
+                    // this.reset();
+                } else {
+                    responseDiv.innerHTML = `<p style="color: red; font-weight: bold;">${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                responseDiv.innerHTML = '<p style="color: red; font-weight: bold;">नेटवर्क त्रुटि हुई</p>';
+            })
+            .finally(() => {
+                // Reset button state
+                submitButton.disabled = false;
+                submitButton.textContent = 'save';
+            });
+        });
+
+
+
+
+    function printBill() {
+        // Clone the bill section
+        const billElement = document.querySelector(".bill");
+        const clone = billElement.cloneNode(true);
+
+        // Manually copy values to the clone
+        const inputs = billElement.querySelectorAll("input, textarea, select");
+        const cloneInputs = clone.querySelectorAll("input, textarea, select");
+
+        inputs.forEach((input, index) => {
+            if (input.type === "checkbox" || input.type === "radio") {
+                cloneInputs[index].checked = input.checked;
+            } else {
+                cloneInputs[index].value = input.value;
+            }
+        });
+
+        // Save original HTML
+        const originalHTML = document.body.innerHTML;
+
+        // Replace body with cloned bill
+        document.body.innerHTML = "";
+        document.body.appendChild(clone);
+
+        // Trigger print
+        window.print();
+
+        // Restore original HTML after printing
+        document.body.innerHTML = originalHTML;
+
+        // Re-bind any JS (optional)
+        location.reload(); // safest way to restore full functionality
+    }
+
+
+
+    </script>
+
+</body>
+</html>

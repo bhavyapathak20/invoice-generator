@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="/styles/login.css">
+</head>
+<body>
+    <form action="/login" method="post">
+        <div class="main">
+            <div class="username">
+                <h5>Username</h5>
+                <input type="text" name="username" required>
+            </div>
+
+            <div class="password">
+                <h5>Password</h5>
+                <input type="password" name="password" required>
+            </div>
+
+            <div class="submit">
+                <button type="submit">Submit</button>
+            </div>
+
+            <div class="changePass">
+                <button type="button" class="change-button" onclick="sendOTP()" >change password</button>
+                <div id="otp-section" style="display: none; margin-top: 10px;">
+                    <input type="text" id="otp-input" placeholder="Enter OTP">
+                    <button type="button" onclick="verifyOTP()">Verify OTP</button>
+                    <div id="new-pass-section" style="display: none; margin-top: 10px;">
+                        <input type="password" id="new-password" placeholder="Enter New Password"><br>
+                        <input type="password" id="confirm-password" placeholder="Confirm Password"><br>
+                        <button type="button" onclick="changePassword()">Save Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script>
+    function sendOTP() {
+        fetch('/send-otp', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('otp-section').style.display = 'block';
+                    alert("OTP sent to email");
+                } else {
+                    alert("Failed to send OTP");
+                }
+            });
+    }
+
+    function verifyOTP() {
+        const otp = document.getElementById('otp-input').value;
+        fetch('/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ otp })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("OTP verified. Enter new password.");
+                document.getElementById('new-pass-section').style.display = 'block';
+            } else {
+                alert("Incorrect OTP");
+            }
+        });
+    }   
+
+    function changePassword() {
+        const newPass = document.getElementById('new-password').value;
+        const confirmPass = document.getElementById('confirm-password').value;
+
+        if (newPass !== confirmPass) {
+            return alert("Passwords do not match.");
+        }
+
+        fetch('/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ newPassword: newPass })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Password updated successfully.");
+                location.reload();
+            } else {
+                alert("Error updating password.");
+            }
+        });
+    }   
+
+
+    </script>
+</body>
+</html>

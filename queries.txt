@@ -1,0 +1,34 @@
+invoice_info:
+CREATE TABLE invoice_info(
+	id SERIAL PRIMARY KEY,
+	invoice_number INT UNIQUE NOT NULL,
+	invoice_date DATE NOT NULL,
+	delivery_date DATE NOT NULL,
+	customer_name VARCHAR(50),
+	customer_phone TEXT CHECK (char_length(customer_phone) = 10 AND customer_phone ~ '^[0-9]+$'),
+	money_total DECIMAL(10,2) NOT NULL,
+	money_advance DECIMAL(10,2) NOT NULL,
+	money_remaining DECIMAL(10,2) NOT NULL
+);
+
+invoice_items:
+CREATE TABLE invoice_items(
+	id SERIAL PRIMARY KEY,
+	invoice_id INT NOT NULL REFERENCES invoice_info(id) ON DELETE CASCADE,
+	quantity VARCHAR(10),
+	product VARCHAR(100),
+	product_money DECIMAL(10,2)
+);
+
+CREATE TABLE login_info(
+	id SERIAL PRIMARY KEY,
+	username VARCHAR(30) NOT NULL,
+	user_password VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE whiteboard_drawings (
+  id SERIAL PRIMARY KEY,
+  invoice_id INT REFERENCES invoice_info(id) ON DELETE CASCADE,
+  url TEXT,
+  drawing_data JSONB
+);

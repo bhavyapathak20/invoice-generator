@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excalidraw Clone</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            /* font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            /* background: #f5f5f5; */
+        } 
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 60px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .tool-group {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .tool-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tool-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .tool-btn:hover::before {
+            left: 100%;
+        }
+        
+        .tool-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .tool-btn.active {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(118, 75, 162, 0.4);
+        }
+        
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+        
+        .color-picker:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .slider {
+            width: 80px;
+            height: 4px;
+            border-radius: 2px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            padding: 10px;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: 
+                radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.3) 1px, transparent 0);
+            background-size: 20px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background-color: white;
+        }
+        
+        .canvas-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #canvas {
+            background: white;
+            border-radius: 12px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .status-bar {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+            min-height: 40px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .toolbar {
+                justify-content: center;
+            }
+            
+            .tool-group {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">✏️ DrawBoard Pro</div>
+        <div class="toolbar">
+            <div class="tool-group">
+                <button class="tool-btn active" data-tool="select">Select</button>
+                <button class="tool-btn" data-tool="pencil">Pencil</button>
+                <button class="tool-btn" data-tool="eraser">Eraser</button>
+                <button class="tool-btn" data-tool="text">Text</button>
+            </div>
+            
+            <div class="tool-group">
+                <input type="color" class="color-picker" id="strokeColor" value="#667eea">
+                <input type="color" class="color-picker" id="fillColor" value="#764ba2">
+            </div>
+            
+            <div class="slider-container">
+                <span>Width:</span>
+                <input type="range" class="slider" id="strokeWidth" min="1" max="20" value="2">
+                <span id="widthValue">2</span>
+            </div>
+            
+            <div class="tool-group">
+                <button class="tool-btn" onclick="importFile()">📁 Import</button>
+                <button class="tool-btn" onclick="saveAsPNG()">💾 Save PNG</button>
+                <button class="tool-btn" onclick="exportPDF()">📄 PDF</button>
+                <button class="tool-btn" onclick="printCanvas()">🖨️ Print</button>
+                <button class="tool-btn" onclick="clearCanvas()">🗑️ Clear</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="canvas-container">
+            <div class="canvas-wrapper">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="status-bar">
+        <span>Ready • Use mouse to draw • Right-click to access context menu</span>
+        <span id="coords">Position: (0, 0)</span>
+    </div>
+    
+    <input type="file" class="file-input" id="fileInput" accept="image/*,.json" onchange="handleFileImport(this)">
+    
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        // Calculate canvas size based on available space
+        function calculateCanvasSize() {
+            const headerHeight = 60;
+            const statusBarHeight = 40;
+            const padding = 20; // 10px padding on each side
+            
+            const availableWidth = window.innerWidth - padding;
+            const availableHeight = window.innerHeight - headerHeight - statusBarHeight - padding;
+            
+            return {
+                width: Math.max(800, availableWidth),
+                height: Math.max(600, availableHeight)
+            };
+        }
+        
+        // Initialize Fabric.js canvas with larger size
+        const canvasSize = calculateCanvasSize();
+        const canvas = new fabric.Canvas('canvas', {
+            width: canvasSize.width,
+            height: canvasSize.height,
+            backgroundColor: 'white'
+        });
+        
+        // Global variables
+        let currentTool = 'select';
+        let isDrawing = false;
+        let startX, startY;
+        let activeObject = null;
+        let isErasing = false;
+        
+        // Simple eraser using PencilBrush with white color
+        function setupEraser() {
+            canvas.isDrawingMode = true;
+            canvas.selection = false;
+            isErasing = true;
+            
+            // Use PencilBrush with white color to "erase" (paint over with background color)
+            canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+            canvas.freeDrawingBrush.width = parseInt(document.getElementById('strokeWidth').value) * 2;
+            canvas.freeDrawingBrush.color = 'white'; // Use white to match canvas background
+            
+            // Update cursor
+            updateEraserCursor();
+        }
+        
+        function updateEraserCursor() {
+            // Simple crosshair cursor for eraser
+            canvas.freeDrawingCursor = 'crosshair';
+        }
+        
+        function cleanupEraser() {
+            if (isErasing) {
+                isErasing = false;
+                canvas.freeDrawingCursor = 'crosshair';
+            }
+        }
+        
+        // Tool selection
+        document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // Clean up previous tool
+                cleanupEraser();
+                
+                currentTool = e.target.dataset.tool;
+                
+                // Set canvas mode based on tool
+                if (currentTool === 'select') {
+                    canvas.isDrawingMode = false;
+                    canvas.selection = true;
+                    canvas.defaultCursor = 'default';
+                } else if (currentTool === 'pencil') {
+                    canvas.isDrawingMode = true;
+                    canvas.selection = false;
+                    canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+                    canvas.freeDrawingBrush.width = parseInt(document.getElementById('strokeWidth').value);
+                    canvas.freeDrawingBrush.color = document.getElementById('strokeColor').value;
+                } else if (currentTool === 'eraser') {
+                    setupEraser();
+                } else {
+                    canvas.isDrawingMode = false;
+                    canvas.selection = false;
+                }
+            });
+        });
+        
+        // Color and stroke width controls
+        document.getElementById('strokeColor').addEventListener('change', (e) => {
+            if (canvas.freeDrawingBrush && currentTool === 'pencil') {
+                canvas.freeDrawingBrush.color = e.target.value;
+            }
+        });
+        
+        document.getElementById('strokeWidth').addEventListener('input', (e) => {
+            if (canvas.freeDrawingBrush) {
+                if (currentTool === 'pencil') {
+                    canvas.freeDrawingBrush.width = parseInt(e.target.value);
+                } else if (currentTool === 'eraser') {
+                    canvas.freeDrawingBrush.width = parseInt(e.target.value) * 2;
+                }
+            }
+            document.getElementById('widthValue').textContent = e.target.value;
+        });
+        
+        // Mouse events for drawing shapes
+        canvas.on('mouse:down', (e) => {
+            if (currentTool === 'text') {
+                const pointer = canvas.getPointer(e.e);
+                const text = prompt('Enter text:');
+                if (text) {
+                    const textObj = new fabric.Text(text, {
+                        left: pointer.x,
+                        top: pointer.y,
+                        fill: document.getElementById('strokeColor').value,
+                        fontSize: parseInt(document.getElementById('strokeWidth').value) * 8
+                    });
+                    canvas.add(textObj);
+                }
+            }
+        });
+        
+        // Mouse position tracking
+        canvas.on('mouse:move', (e) => {
+            const pointer = canvas.getPointer(e.e);
+            document.getElementById('coords').textContent = `Position: (${Math.round(pointer.x)}, ${Math.round(pointer.y)})`;
+        });
+        
+        // Import file function
+        function importFile() {
+            document.getElementById('fileInput').click();
+        }
+        
+        function handleFileImport(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            
+            if (file.type === 'application/json') {
+                reader.onload = (e) => {
+                    try {
+                        const json = JSON.parse(e.target.result);
+                        canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
+                        showNotification('Drawing imported successfully!');
+                    } catch (error) {
+                        showNotification('Error importing JSON file');
+                    }
+                };
+                reader.readAsText(file);
+            } else if (file.type.startsWith('image/')) {
+                reader.onload = (e) => {
+                    fabric.Image.fromURL(e.target.result, (img) => {
+                        // Scale image to fit canvas
+                        const maxWidth = canvas.width * 0.8;
+                        const maxHeight = canvas.height * 0.8;
+                        const scale = Math.min(maxWidth / img.width, maxHeight / img.height);
+                        
+                        img.scale(scale);
+                        img.set({
+                            left: (canvas.width - img.width * scale) / 2,
+                            top: (canvas.height - img.height * scale) / 2
+                        });
+                        
+                        canvas.add(img);
+                        canvas.renderAll();
+                        showNotification('Image imported successfully!');
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Get canvas bounds with content
+        function getCanvasBounds() {
+            const objects = canvas.getObjects();
+            if (objects.length === 0) {
+                return {
+                    left: 0,
+                    top: 0,
+                    width: canvas.width,
+                    height: canvas.height
+                };
+            }
+            
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            
+            objects.forEach(obj => {
+                const bounds = obj.getBoundingRect();
+                minX = Math.min(minX, bounds.left);
+                minY = Math.min(minY, bounds.top);
+                maxX = Math.max(maxX, bounds.left + bounds.width);
+                maxY = Math.max(maxY, bounds.top + bounds.height);
+            });
+            
+            // Add some padding
+            const padding = 20;
+            return {
+                left: Math.max(0, minX - padding),
+                top: Math.max(0, minY - padding),
+                width: Math.min(canvas.width, maxX - minX + 2 * padding),
+                height: Math.min(canvas.height, maxY - minY + 2 * padding)
+            };
+        }
+        
+        // Save as PNG with proper bounds and centering
+        async function saveAsPNG() {
+            try {
+                const bounds = getCanvasBounds();
+                
+                // Create a temporary canvas for proper export
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Set export dimensions (maintain aspect ratio)
+                const exportWidth = Math.min(2000, bounds.width * 2); // Max 2000px width
+                const exportHeight = (bounds.height / bounds.width) * exportWidth;
+                
+                tempCanvas.width = exportWidth;
+                tempCanvas.height = exportHeight;
+                
+                // Fill with white background
+                tempCtx.fillStyle = 'white';
+                tempCtx.fillRect(0, 0, exportWidth, exportHeight);
+                
+                // Get the original canvas data
+                const originalDataUrl = canvas.toDataURL({
+                    format: 'png',
+                    quality: 1.0,
+                    left: bounds.left,
+                    top: bounds.top,
+                    width: bounds.width,
+                    height: bounds.height,
+                    multiplier: 1
+                });
+                
+                // Create image and draw it centered
+                const img = new Image();
+                img.onload = async function() {
+                    // Calculate position to center the drawing
+                    const x = (exportWidth - img.width) / 2;
+                    const y = (exportHeight - img.height) / 2;
+                    
+                    tempCtx.drawImage(img, x, y);
+                    
+                    // Convert to blob
+                    tempCanvas.toBlob(async (blob) => {
+                        // Check if File System Access API is supported
+                        if ('showSaveFilePicker' in window) {
+                            try {
+                                const fileHandle = await window.showSaveFilePicker({
+                                    suggestedName: 'my-drawing.png',
+                                    types: [{
+                                        description: 'PNG Images',
+                                        accept: {
+                                            'image/png': ['.png']
+                                        }
+                                    }]
+                                });
+                                
+                                const writable = await fileHandle.createWritable();
+                                await writable.write(blob);
+                                await writable.close();
+                                
+                                showNotification('PNG saved successfully!');
+                            } catch (err) {
+                                if (err.name !== 'AbortError') {
+                                    throw err;
+                                }
+                            }
+                        } else {
+                            // Fallback for browsers that don't support File System Access API
+                            const filename = prompt('Enter filename (without extension):', 'my-drawing');
+                            if (!filename) return;
+                            
+                            const link = document.createElement('a');
+                            link.download = filename.endsWith('.png') ? filename : filename + '.png';
+                            link.href = URL.createObjectURL(blob);
+                            
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            URL.revokeObjectURL(link.href);
+                            
+                            showNotification('PNG saved successfully!');
+                        }
+                    }, 'image/png');
+                };
+                img.src = originalDataUrl;
+                
+            } catch (error) {
+                console.error('Error saving PNG:', error);
+                showNotification('Error saving PNG file');
+            }
+        }
+        
+        // Export as PDF
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            
+            const bounds = getCanvasBounds();
+            
+            // Get the cropped image data with proper bounds
+            const imgData = canvas.toDataURL({
+                format: 'png',
+                quality: 1.0,
+                left: bounds.left,
+                top: bounds.top,
+                width: bounds.width,
+                height: bounds.height,
+                multiplier: 1
+            });
+            
+            // Calculate dimensions to fit PDF page while maintaining aspect ratio
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const margin = 10;
+            
+            const availableWidth = pdfWidth - (2 * margin);
+            const availableHeight = pdfHeight - (2 * margin);
+            
+            const imgAspectRatio = bounds.width / bounds.height;
+            const availableAspectRatio = availableWidth / availableHeight;
+            
+            let finalWidth, finalHeight;
+            if (imgAspectRatio > availableAspectRatio) {
+                // Image is wider than available space
+                finalWidth = availableWidth;
+                finalHeight = availableWidth / imgAspectRatio;
+            } else {
+                // Image is taller than available space
+                finalHeight = availableHeight;
+                finalWidth = availableHeight * imgAspectRatio;
+            }
+            
+            // Center the image on the PDF page
+            const x = (pdfWidth - finalWidth) / 2;
+            const y = (pdfHeight - finalHeight) / 2;
+            
+            pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
+            pdf.save('drawing.pdf');
+            showNotification('PDF exported successfully!');
+        }
+        
+        // Fixed print function
+        function printCanvas() {
+            const bounds = getCanvasBounds();
+            const dataUrl = canvas.toDataURL({
+                format: 'png',
+                quality: 1.0,
+                left: bounds.left,
+                top: bounds.top,
+                width: bounds.width,
+                height: bounds.height,
+                multiplier: 2
+            });
+
+            const billnum = prompt("Enter the bill Number :");
+            if (!billnum) return;
+
+            const printWindow = window.open('', '', 'width=900,height=700');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Print Drawing</title>
+                    <style>
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            font-family: sans-serif;
+                            height: 100vh;
+                            display: flex;
+                            flex-direction: column;
+                        }
+                        header {
+                            padding: 20px;
+                            text-align: center;
+                            font-size: 18px;
+                            font-weight: bold;
+                            border-bottom: 1px solid #ccc;
+                        }
+                        main {
+                            flex: 1;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 20px;
+                        }
+                        img {
+                            max-width: 90%;
+                            max-height: 90%;
+                            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                        }
+                        @media print {
+                            header {
+                                padding: 10px 0;
+                                font-size: 16px;
+                                border: none;
+                            }
+                            main {
+                                padding: 0;
+                            }
+                            img {
+                                display: block;
+                                margin: 0 auto;
+                                box-shadow: none;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <header>Bill Number: ${billnum}</header>
+                    <main>
+                        <img src="${dataUrl}" alt="Drawing">
+                    </main>
+                </body>
+                </html>
+            `);
+
+            printWindow.document.close();
+
+            printWindow.onload = function () {
+                setTimeout(() => {
+                    printWindow.focus();
+                    printWindow.print();
+                    printWindow.close();
+                }, 500);
+            };
+
+            showNotification('Opening print dialog...');
+        }
+        
+        // Clear canvas
+        function clearCanvas() {
+            if (confirm('Are you sure you want to clear the canvas?')) {
+                canvas.clear();
+                canvas.backgroundColor = 'white';
+                canvas.renderAll();
+                showNotification('Canvas cleared!');
+            }
+        }
+        
+        //Show notification
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Handle canvas resize
+        window.addEventListener('resize', () => {
+            const newSize = calculateCanvasSize();
+            canvas.setDimensions({
+                width: newSize.width,
+                height: newSize.height
+            });
+        });
+        
+        // Context menu for additional options
+        canvas.on('mouse:down', (e) => {
+            if (e.e.button === 2) { // Right click
+                e.e.preventDefault();
+                const object = canvas.getActiveObject();
+                if (object) {
+                    const action = prompt('Actions: delete, duplicate, or bring-to-front');
+                    switch (action) {
+                        case 'delete':
+                            canvas.remove(object);
+                            break;
+                        case 'duplicate':
+                            object.clone((cloned) => {
+                                cloned.set({
+                                    left: cloned.left + 10,
+                                    top: cloned.top + 10
+                                });
+                                canvas.add(cloned);
+                            });
+                            break;
+                        case 'bring-to-front':
+                            canvas.bringToFront(object);
+                            break;
+                    }
+                    canvas.renderAll();
+                }
+            }
+        });
+        
+        // Disable context menu
+        canvas.wrapperEl.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+        
+        // Initialize
+        canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+        canvas.freeDrawingBrush.width = 2;
+        canvas.freeDrawingBrush.color = '#667eea';
+    </script>
+</body>
+</html>
