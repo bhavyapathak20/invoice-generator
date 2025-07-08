@@ -454,34 +454,35 @@
         }
         
         // Save as PNG with proper bounds and centering
+        // Save as PNG with proper bounds and centering
         async function saveAsPNG() {
             try {
                 const billnum = prompt("Enter the bill Number:");
                 if (!billnum) return;
-        
+
                 const bounds = getCanvasBounds();
-        
+
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
-        
+
                 const exportWidth = Math.min(2000, bounds.width * 2);
                 const exportHeight = (bounds.height / bounds.width) * exportWidth;
-        
+
                 const headerHeight = 100;
                 const totalHeight = exportHeight + headerHeight;
-        
+
                 tempCanvas.width = exportWidth;
                 tempCanvas.height = totalHeight;
-        
+
                 tempCtx.fillStyle = 'white';
                 tempCtx.fillRect(0, 0, exportWidth, totalHeight);
-        
+
                 // Draw header text
                 tempCtx.fillStyle = '#333';
                 tempCtx.font = 'bold 40px Arial';
                 tempCtx.textAlign = 'center';
                 tempCtx.fillText(`Bill Number: ${billnum}`, exportWidth / 2, 60);
-        
+
                 // Draw canvas content
                 const originalDataUrl = canvas.toDataURL({
                     format: 'png',
@@ -492,14 +493,14 @@
                     height: bounds.height,
                     multiplier: 2
                 });
-        
+
                 const img = new Image();
                 img.onload = async function () {
                     const x = (exportWidth - img.width) / 2;
                     const y = headerHeight;
-        
+
                     tempCtx.drawImage(img, x, y);
-        
+
                     tempCanvas.toBlob(async (blob) => {
                         if ('showSaveFilePicker' in window) {
                             try {
@@ -510,11 +511,11 @@
                                         accept: { 'image/png': ['.png'] }
                                     }]
                                 });
-        
+
                                 const writable = await fileHandle.createWritable();
                                 await writable.write(blob);
                                 await writable.close();
-        
+
                                 showNotification('PNG saved successfully!');
                             } catch (err) {
                                 if (err.name !== 'AbortError') throw err;
@@ -523,23 +524,24 @@
                             const link = document.createElement('a');
                             link.download = `bill-${billnum}.png`;
                             link.href = URL.createObjectURL(blob);
-        
+
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
                             URL.revokeObjectURL(link.href);
-        
+
                             showNotification('PNG saved successfully!');
                         }
                     }, 'image/png');
                 };
                 img.src = originalDataUrl;
-        
+
             } catch (error) {
                 console.error('Error saving PNG:', error);
                 showNotification('Error saving PNG file');
             }
         }
+
 
         
         // Export as PDF
