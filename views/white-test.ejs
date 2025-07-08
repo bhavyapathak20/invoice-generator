@@ -623,508 +623,140 @@
                 height: bounds.height,
                 multiplier: 2
             });
-        
+            
             const billnum = prompt("Enter the bill Number :");
             if (!billnum) return;
-        
-            // Check if device is mobile/tablet
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-                             window.innerWidth <= 768 || 
-                             ('ontouchstart' in window);
-        
+            
+            // Check if it's a mobile device
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+            
             if (isMobile) {
-                // Mobile-friendly approach - direct page manipulation
-                printCanvasMobile(dataUrl, billnum);
-            } else {
-                // Desktop approach using popup window
-                printCanvasDesktop(dataUrl, billnum);
-            }
-        }
-        
-        function printCanvasDesktop(dataUrl, billnum) {
-            const printWindow = window.open('', '', 'width=900,height=700');
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Print Drawing</title>
-                    <style>
-                        body {
-                            margin: 0;
-                            padding: 0;
-                            font-family: sans-serif;
-                            height: 100vh;
-                            display: flex;
-                            flex-direction: column;
-                        }
-                        header {
-                            padding: 20px;
-                            text-align: center;
-                            font-size: 18px;
-                            font-weight: bold;
-                            border-bottom: 1px solid #ccc;
-                        }
-                        main {
-                            flex: 1;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            padding: 20px;
-                        }
-                        img {
-                            max-width: 90%;
-                            max-height: 90%;
-                            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                        }
-                        @media print {
-                            header {
-                                padding: 10px 0;
-                                font-size: 16px;
-                                border: none;
+                // Mobile-friendly approach: create a new page in the same window
+                const originalContent = document.body.innerHTML;
+                const originalTitle = document.title;
+                
+                // Create the print content
+                const printContent = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Print Drawing</title>
+                        <style>
+                            body { margin: 0; padding: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
+                            header { padding: 20px; text-align: center; font-size: 18px; font-weight: bold; border-bottom: 1px solid #ccc; }
+                            main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+                            img { max-width: 90%; max-height: 90%; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+                            @media print {
+                                header { padding: 10px 0; font-size: 16px; border: none; }
+                                main { padding: 0; }
+                                img { display: block; margin: 0 auto; box-shadow: none; }
                             }
-                            main {
-                                padding: 0;
-                            }
-                            img {
-                                display: block;
-                                margin: 0 auto;
-                                box-shadow: none;
-                            }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <header>Bill Number: ${billnum}</header>
-                    <main>
-                        <img src="${dataUrl}" alt="Drawing">
-                    </main>
-                </body>
-                </html>
-            `);
-        
-            printWindow.document.close();
-        
-            printWindow.onload = function () {
-                setTimeout(() => {
-                    printWindow.focus();
-                    printWindow.print();
-                    printWindow.close();
-                }, 500);
-            };
-        
-            showNotification('Opening print dialog...');
-        }
-        
-        function printCanvasMobile(dataUrl, billnum) {
-            // Create a new window/popup for mobile printing (similar to desktop)
-            const printWindow = window.open('', '_blank', 'width=device-width,height=device-height');
-            
-            if (!printWindow) {
-                // Fallback if popup is blocked
-                printCanvasMobileFallback(dataUrl, billnum);
-                return;
-            }
-            
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Print Drawing - Bill ${billnum}</title>
-                    <style>
-                        * {
-                            margin: 0;
-                            padding: 0;
-                            box-sizing: border-box;
-                        }
-                        
-                        body {
-                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                            background: white;
-                            color: black;
-                            padding: 20px;
-                            line-height: 1.4;
-                        }
-                        
-                        .container {
-                            max-width: 800px;
-                            margin: 0 auto;
-                            background: white;
-                        }
-                        
-                        .header {
-                            text-align: center;
-                            padding: 20px 0;
-                            border-bottom: 2px solid #333;
-                            margin-bottom: 30px;
-                        }
-                        
-                        .header h2 {
-                            margin: 0;
-                            font-size: 24px;
-                            font-weight: bold;
-                            color: #333;
-                        }
-                        
-                        .image-container {
-                            text-align: center;
-                            padding: 20px 0;
-                        }
-                        
-                        .drawing-image {
-                            max-width: 100%;
-                            height: auto;
-                            border: 1px solid #ddd;
-                            border-radius: 4px;
-                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                        }
-                        
-                        .button-container {
-                            text-align: center;
-                            margin-top: 30px;
-                            padding: 20px;
-                            background: #f8f9fa;
-                            border-radius: 8px;
-                            position: fixed;
-                            bottom: 20px;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            z-index: 1000;
-                            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                            max-width: 300px;
-                            width: 90%;
-                        }
-                        
-                        .print-btn, .close-btn {
-                            border: none;
-                            padding: 12px 24px;
-                            font-size: 16px;
-                            border-radius: 4px;
-                            cursor: pointer;
-                            font-weight: bold;
-                            margin: 5px;
-                            min-width: 100px;
-                        }
-                        
-                        .print-btn {
-                            background: #007bff;
-                            color: white;
-                        }
-                        
-                        .close-btn {
-                            background: #6c757d;
-                            color: white;
-                        }
-                        
-                        .print-btn:hover {
-                            background: #0056b3;
-                        }
-                        
-                        .close-btn:hover {
-                            background: #545b62;
-                        }
-                        
-                        @media print {
-                            body {
-                                padding: 0;
-                                margin: 0;
-                            }
-                            
-                            .container {
-                                max-width: none;
-                                margin: 0;
-                                padding: 20px;
-                            }
-                            
-                            .header {
-                                padding: 10px 0;
-                                margin-bottom: 20px;
-                                border-bottom: 1px solid #000;
-                            }
-                            
-                            .header h2 {
-                                font-size: 18px;
-                                color: #000;
-                            }
-                            
-                            .image-container {
-                                padding: 10px 0;
-                                page-break-inside: avoid;
-                            }
-                            
-                            .drawing-image {
-                                max-width: 100%;
-                                height: auto;
-                                border: 1px solid #000;
-                                border-radius: 0;
-                                box-shadow: none;
-                                display: block;
-                                margin: 0 auto;
-                            }
-                            
-                            .button-container {
-                                display: none !important;
-                            }
-                            
-                            @page {
-                                margin: 0.5in;
-                                size: auto;
-                            }
-                        }
-                        
-                        @media screen and (max-width: 480px) {
-                            body {
-                                padding: 10px;
-                            }
-                            
-                            .header h2 {
-                                font-size: 20px;
-                            }
-                            
-                            .button-container {
-                                bottom: 10px;
-                                width: 95%;
-                            }
-                            
-                            .print-btn, .close-btn {
-                                padding: 10px 20px;
-                                font-size: 14px;
-                                min-width: 80px;
-                            }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <div class="header">
-                            <h2>Bill Number: ${billnum}</h2>
-                        </div>
-                        <div class="image-container">
-                            <img src="${dataUrl}" alt="Drawing" class="drawing-image">
-                        </div>
-                        <div class="button-container">
-                            <button onclick="printPage()" class="print-btn">🖨️ Print</button>
-                            <button onclick="closePage()" class="close-btn">❌ Close</button>
-                        </div>
-                    </div>
-                    
-                    <script>
-                        function printPage() {
+                        </style>
+                    </head>
+                    <body>
+                        <header>Bill Number: ${billnum}</header>
+                        <main>
+                            <img src="${dataUrl}" alt="Drawing">
+                        </main>
+                    </body>
+                    </html>
+                `;
+                
+                // Replace current page content
+                document.open();
+                document.write(printContent);
+                document.close();
+                
+                // Wait for image to load, then print
+                const img = document.querySelector('img');
+                if (img) {
+                    img.onload = function() {
+                        setTimeout(() => {
                             window.print();
-                        }
-                        
-                        function closePage() {
-                            window.close();
-                        }
-                        
-                        // Auto-focus for better mobile experience
-                        window.onload = function() {
-                            document.body.focus();
+                            // Restore original content after printing
+                            setTimeout(() => {
+                                document.open();
+                                document.write(`<!DOCTYPE html><html><head><title>${originalTitle}</title></head><body>${originalContent}</body></html>`);
+                                document.close();
+                                // Reload the page to restore full functionality
+                                window.location.reload();
+                            }, 1000);
+                        }, 500);
+                    };
+                    
+                    // Fallback if image is already loaded
+                    if (img.complete) {
+                        img.onload();
+                    }
+                }
+            } else {
+                // Desktop approach: use popup window
+                const printWindow = window.open('', '', 'width=900,height=700');
+                
+                if (!printWindow) {
+                    // Fallback if popup is blocked
+                    alert('Popup blocked. Please allow popups for this site and try again.');
+                    return;
+                }
+                
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Print Drawing</title>
+                        <style>
+                            body { margin: 0; padding: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
+                            header { padding: 20px; text-align: center; font-size: 18px; font-weight: bold; border-bottom: 1px solid #ccc; }
+                            main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+                            img { max-width: 90%; max-height: 90%; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+                            @media print {
+                                header { padding: 10px 0; font-size: 16px; border: none; }
+                                main { padding: 0; }
+                                img { display: block; margin: 0 auto; box-shadow: none; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <header>Bill Number: ${billnum}</header>
+                        <main>
+                            <img src="${dataUrl}" alt="Drawing">
+                        </main>
+                    </body>
+                    </html>
+                `);
+                
+                printWindow.document.close();
+                
+                // Wait for the window to load completely
+                printWindow.onload = function() {
+                    const img = printWindow.document.querySelector('img');
+                    if (img) {
+                        img.onload = function() {
+                            setTimeout(() => {
+                                printWindow.focus();
+                                printWindow.print();
+                                printWindow.close();
+                            }, 500);
                         };
-                    </script>
-                </body>
-                </html>
-            `);
-        
-            printWindow.document.close();
-            showNotification('Print window opened. Tap Print button to print.');
-        }
-        
-        function printCanvasMobileFallback(dataUrl, billnum) {
-            // Fallback method if popup is blocked
-            const originalContent = document.body.innerHTML;
-            const originalTitle = document.title;
-            
-            // Create print content with better styling
-            const printContent = `
-                <div id="mobile-print-content" style="
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                    max-width: 100%;
-                    margin: 0;
-                    padding: 20px;
-                    background: white;
-                    color: black;
-                    line-height: 1.4;
-                    min-height: 100vh;
-                    box-sizing: border-box;
-                ">
-                    <div style="
-                        text-align: center;
-                        padding: 20px 0;
-                        border-bottom: 2px solid #333;
-                        margin-bottom: 30px;
-                    ">
-                        <h2 style="
-                            margin: 0;
-                            font-size: 24px;
-                            font-weight: bold;
-                            color: #333;
-                        ">Bill Number: ${billnum}</h2>
-                    </div>
-                    <div style="
-                        text-align: center;
-                        padding: 20px 0;
-                        page-break-inside: avoid;
-                    ">
-                        <img src="${dataUrl}" alt="Drawing" style="
-                            max-width: 100%;
-                            height: auto;
-                            border: 1px solid #ddd;
-                            border-radius: 4px;
-                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                            display: block;
-                            margin: 0 auto;
-                        ">
-                    </div>
-                    <div id="mobile-buttons" style="
-                        text-align: center;
-                        margin-top: 30px;
-                        padding: 20px;
-                        background: #f8f9fa;
-                        border-radius: 8px;
-                        position: fixed;
-                        bottom: 20px;
-                        left: 50%;
-                        transform: translateX(-50%);
-                        z-index: 1000;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                        max-width: 300px;
-                        width: 90%;
-                    ">
-                        <button onclick="printMobileCanvas()" style="
-                            background: #007bff;
-                            color: white;
-                            border: none;
-                            padding: 12px 24px;
-                            font-size: 16px;
-                            border-radius: 4px;
-                            cursor: pointer;
-                            margin: 5px;
-                            font-weight: bold;
-                            min-width: 100px;
-                        ">🖨️ Print</button>
-                        <button onclick="restoreMobileCanvas()" style="
-                            background: #6c757d;
-                            color: white;
-                            border: none;
-                            padding: 12px 24px;
-                            font-size: 16px;
-                            border-radius: 4px;
-                            cursor: pointer;
-                            margin: 5px;
-                            font-weight: bold;
-                            min-width: 100px;
-                        ">❌ Close</button>
-                    </div>
-                </div>
-            `;
-            
-            // Add comprehensive print styles
-            const printStyles = document.createElement('style');
-            printStyles.id = 'mobile-print-styles';
-            printStyles.textContent = `
-                @media print {
-                    * {
-                        -webkit-print-color-adjust: exact;
-                        print-color-adjust: exact;
+                        
+                        // Fallback if image is already loaded
+                        if (img.complete) {
+                            img.onload();
+                        }
                     }
-                    
-                    body {
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        background: white !important;
-                        color: black !important;
-                    }
-                    
-                    body * {
-                        visibility: hidden;
-                    }
-                    
-                    #mobile-print-content,
-                    #mobile-print-content * {
-                        visibility: visible;
-                    }
-                    
-                    #mobile-print-content {
-                        position: absolute !important;
-                        left: 0 !important;
-                        top: 0 !important;
-                        width: 100% !important;
-                        height: auto !important;
-                        margin: 0 !important;
-                        padding: 20px !important;
-                        box-sizing: border-box !important;
-                        background: white !important;
-                        color: black !important;
-                        page-break-inside: avoid !important;
-                    }
-                    
-                    #mobile-print-content h2 {
-                        color: #000 !important;
-                        font-size: 18px !important;
-                        margin: 0 0 20px 0 !important;
-                        padding: 10px 0 !important;
-                        border-bottom: 1px solid #000 !important;
-                        text-align: center !important;
-                    }
-                    
-                    #mobile-print-content img {
-                        max-width: 100% !important;
-                        height: auto !important;
-                        border: 1px solid #000 !important;
-                        border-radius: 0 !important;
-                        box-shadow: none !important;
-                        display: block !important;
-                        margin: 20px auto !important;
-                        page-break-inside: avoid !important;
-                    }
-                    
-                    #mobile-buttons {
-                        display: none !important;
-                    }
-                    
-                    @page {
-                        margin: 0.5in;
-                        size: auto;
-                    }
-                }
-            `;
-            
-            document.head.appendChild(printStyles);
-            
-            // Replace page content
-            document.body.innerHTML = printContent;
-            document.title = `Print Drawing - Bill ${billnum}`;
-            
-            // Store original content for restoration
-            window.originalMobileContent = originalContent;
-            window.originalMobileTitle = originalTitle;
-            
-            // Add global functions for mobile print actions
-            window.printMobileCanvas = function() {
-                window.print();
-            };
-            
-            window.restoreMobileCanvas = function() {
-                // Remove print styles
-                const styles = document.getElementById('mobile-print-styles');
-                if (styles) {
-                    styles.remove();
-                }
+                };
                 
-                // Restore original content
-                document.body.innerHTML = window.originalMobileContent;
-                document.title = window.originalMobileTitle;
-                
-                // Clean up global functions
-                delete window.printMobileCanvas;
-                delete window.restoreMobileCanvas;
-                delete window.originalMobileContent;
-                delete window.originalMobileTitle;
-            };
+                // Additional fallback with longer timeout
+                setTimeout(() => {
+                    if (printWindow && !printWindow.closed) {
+                        printWindow.focus();
+                        printWindow.print();
+                        printWindow.close();
+                    }
+                }, 2000);
+            }
             
-            showNotification('Print view ready. Tap the Print button to print.');
+            showNotification('Opening print dialog...');
         }
                 
         // Clear canvas
