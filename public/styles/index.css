@@ -386,7 +386,7 @@
         width: 100%;
     }
 
-    .response{
+    #response{
         display : hidden;
     }
 
