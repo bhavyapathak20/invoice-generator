@@ -328,17 +328,23 @@ app.post("/export", async(req,res)=>{
             previousInvoice = currentInvoice;
         });
 
-
-        await workbook.xlsx.writeFile("All_Invoice_Data.xlsx");
-        console.log("Excel file updated successfully.");
-        res.json({
-            success: true,
-            message: "Excel updated successfully."
-        });
+        // Instead of writing to file, send directly to client
+        const fileName = `All_Invoice_Data_${new Date().toISOString().split('T')[0]}.xlsx`;
+        
+        // Set headers for file download
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        
+        // Write workbook to response stream
+        await workbook.xlsx.write(res);
+        res.end();
 
     }catch(err){
         console.error(err);
-        res.status(500).send("Error inserting data or updating Excel.");
+        res.status(500).json({
+            success: false,
+            message: "Error exporting data"
+        });
     }
 });
 
