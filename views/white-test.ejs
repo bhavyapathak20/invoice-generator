@@ -623,139 +623,80 @@
                 height: bounds.height,
                 multiplier: 2
             });
-            
+
             const billnum = prompt("Enter the bill Number :");
             if (!billnum) return;
-            
-            // Check if it's a mobile device
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-            
-            if (isMobile) {
-                // Mobile-friendly approach: create a new page in the same window
-                const originalContent = document.body.innerHTML;
-                const originalTitle = document.title;
-                
-                // Create the print content
-                const printContent = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Print Drawing</title>
-                        <style>
-                            body { margin: 0; padding: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
-                            header { padding: 20px; text-align: center; font-size: 18px; font-weight: bold; border-bottom: 1px solid #ccc; }
-                            main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-                            img { max-width: 90%; max-height: 90%; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-                            @media print {
-                                header { padding: 10px 0; font-size: 16px; border: none; }
-                                main { padding: 0; }
-                                img { display: block; margin: 0 auto; box-shadow: none; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <header>Bill Number: ${billnum}</header>
-                        <main>
-                            <img src="${dataUrl}" alt="Drawing">
-                        </main>
-                    </body>
-                    </html>
-                `;
-                
-                // Replace current page content
-                document.open();
-                document.write(printContent);
-                document.close();
-                
-                // Wait for image to load, then print
-                const img = document.querySelector('img');
-                if (img) {
-                    img.onload = function() {
-                        setTimeout(() => {
-                            window.print();
-                            // Restore original content after printing
-                            setTimeout(() => {
-                                document.open();
-                                document.write(`<!DOCTYPE html><html><head><title>${originalTitle}</title></head><body>${originalContent}</body></html>`);
-                                document.close();
-                                // Reload the page to restore full functionality
-                                window.location.reload();
-                            }, 1000);
-                        }, 500);
-                    };
-                    
-                    // Fallback if image is already loaded
-                    if (img.complete) {
-                        img.onload();
-                    }
-                }
-            } else {
-                // Desktop approach: use popup window
-                const printWindow = window.open('', '', 'width=900,height=700');
-                
-                if (!printWindow) {
-                    // Fallback if popup is blocked
-                    alert('Popup blocked. Please allow popups for this site and try again.');
-                    return;
-                }
-                
-                printWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Print Drawing</title>
-                        <style>
-                            body { margin: 0; padding: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
-                            header { padding: 20px; text-align: center; font-size: 18px; font-weight: bold; border-bottom: 1px solid #ccc; }
-                            main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-                            img { max-width: 90%; max-height: 90%; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-                            @media print {
-                                header { padding: 10px 0; font-size: 16px; border: none; }
-                                main { padding: 0; }
-                                img { display: block; margin: 0 auto; box-shadow: none; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <header>Bill Number: ${billnum}</header>
-                        <main>
-                            <img src="${dataUrl}" alt="Drawing">
-                        </main>
-                    </body>
-                    </html>
-                `);
-                
-                printWindow.document.close();
-                
-                // Wait for the window to load completely
-                printWindow.onload = function() {
-                    const img = printWindow.document.querySelector('img');
-                    if (img) {
-                        img.onload = function() {
-                            setTimeout(() => {
-                                printWindow.focus();
-                                printWindow.print();
-                                printWindow.close();
-                            }, 500);
-                        };
-                        
-                        // Fallback if image is already loaded
-                        if (img.complete) {
-                            img.onload();
+
+            const printWindow = window.open('', '', 'width=900,height=700');
+            printWindow.document.write(
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Print Drawing</title>
+                    <style>
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            font-family: sans-serif;
+                            height: 100vh;
+                            display: flex;
+                            flex-direction: column;
                         }
-                    }
-                };
-                
-                // Additional fallback with longer timeout
+                        header {
+                            padding: 20px;
+                            text-align: center;
+                            font-size: 18px;
+                            font-weight: bold;
+                            border-bottom: 1px solid #ccc;
+                        }
+                        main {
+                            flex: 1;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 20px;
+                        }
+                        img {
+                            max-width: 90%;
+                            max-height: 90%;
+                            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                        }
+                        @media print {
+                            header {
+                                padding: 10px 0;
+                                font-size: 16px;
+                                border: none;
+                            }
+                            main {
+                                padding: 0;
+                            }
+                            img {
+                                display: block;
+                                margin: 0 auto;
+                                box-shadow: none;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <header>Bill Number: ${billnum}</header>
+                    <main>
+                        <img src="${dataUrl}" alt="Drawing">
+                    </main>
+                </body>
+                </html>
+            );
+
+            printWindow.document.close();
+
+            printWindow.onload = function () {
                 setTimeout(() => {
-                    if (printWindow && !printWindow.closed) {
-                        printWindow.focus();
-                        printWindow.print();
-                        printWindow.close();
-                    }
-                }, 2000);
-            }
-            
+                    printWindow.focus();
+                    printWindow.print();
+                    printWindow.close();
+                }, 500);
+            };
+
             showNotification('Opening print dialog...');
         }
         
