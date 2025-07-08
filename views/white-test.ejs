@@ -612,233 +612,290 @@
             showNotification('PDF exported successfully!');
         }
         
-        function printCanvasMobile(dataUrl, billnum) {
-            // Create a hidden iframe for mobile printing
-            const printFrame = document.createElement('iframe');
-            printFrame.style.position = 'fixed';
-            printFrame.style.top = '-9999px';
-            printFrame.style.left = '-9999px';
-            printFrame.style.width = '1px';
-            printFrame.style.height = '1px';
-            printFrame.style.border = 'none';
-            printFrame.style.opacity = '0';
-            printFrame.style.pointerEvents = 'none';
-            
-            document.body.appendChild(printFrame);
-            
-            // Create the print content
-            const printContent = `
+        function printCanvas() {
+            const bounds = getCanvasBounds();
+            const dataUrl = canvas.toDataURL({
+                format: 'png',
+                quality: 1.0,
+                left: bounds.left,
+                top: bounds.top,
+                width: bounds.width,
+                height: bounds.height,
+                multiplier: 2
+            });
+        
+            const billnum = prompt("Enter the bill Number :");
+            if (!billnum) return;
+        
+            // Check if device is mobile/tablet
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                             window.innerWidth <= 768 || 
+                             ('ontouchstart' in window);
+        
+            if (isMobile) {
+                // Mobile-friendly approach - direct page manipulation
+                printCanvasMobile(dataUrl, billnum);
+            } else {
+                // Desktop approach using popup window
+                printCanvasDesktop(dataUrl, billnum);
+            }
+        }
+        
+        function printCanvasDesktop(dataUrl, billnum) {
+            const printWindow = window.open('', '', 'width=900,height=700');
+            printWindow.document.write(`
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Print Drawing</title>
                     <style>
-                        * {
+                        body {
                             margin: 0;
                             padding: 0;
-                            box-sizing: border-box;
+                            font-family: sans-serif;
+                            height: 100vh;
+                            display: flex;
+                            flex-direction: column;
                         }
-                        
-                        body {
-                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        header {
                             padding: 20px;
-                            background: white;
-                            color: black;
-                            line-height: 1.4;
-                        }
-                        
-                        .print-container {
-                            max-width: 800px;
-                            margin: 0 auto;
-                            background: white;
-                        }
-                        
-                        .header {
                             text-align: center;
-                            padding: 20px 0;
-                            border-bottom: 2px solid #333;
-                            margin-bottom: 30px;
-                        }
-                        
-                        .bill-number {
-                            font-size: 24px;
+                            font-size: 18px;
                             font-weight: bold;
-                            color: #333;
+                            border-bottom: 1px solid #ccc;
                         }
-                        
-                        .image-container {
-                            text-align: center;
-                            padding: 20px 0;
+                        main {
+                            flex: 1;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 20px;
                         }
-                        
-                        .drawing-image {
-                            max-width: 100%;
-                            height: auto;
-                            border: 1px solid #ddd;
-                            border-radius: 4px;
-                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                        img {
+                            max-width: 90%;
+                            max-height: 90%;
+                            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
                         }
-                        
                         @media print {
-                            body {
-                                margin: 0;
-                                padding: 15px;
-                                -webkit-print-color-adjust: exact;
-                                color-adjust: exact;
-                            }
-                            
-                            .print-container {
-                                max-width: none;
-                                margin: 0;
-                            }
-                            
-                            .header {
+                            header {
                                 padding: 10px 0;
-                                margin-bottom: 20px;
-                                border-bottom: 1px solid #000;
+                                font-size: 16px;
+                                border: none;
                             }
-                            
-                            .bill-number {
-                                font-size: 18px;
-                                color: #000;
+                            main {
+                                padding: 0;
                             }
-                            
-                            .image-container {
-                                padding: 10px 0;
-                            }
-                            
-                            .drawing-image {
-                                max-width: 100%;
-                                height: auto;
-                                border: 1px solid #000;
-                                border-radius: 0;
+                            img {
+                                display: block;
+                                margin: 0 auto;
                                 box-shadow: none;
-                                page-break-inside: avoid;
-                            }
-                            
-                            @page {
-                                margin: 0.5in;
-                                size: auto;
-                            }
-                        }
-                        
-                        /* Mobile specific styles */
-                        @media screen and (max-width: 768px) {
-                            body {
-                                padding: 10px;
-                            }
-                            
-                            .bill-number {
-                                font-size: 20px;
-                            }
-                            
-                            .header {
-                                padding: 15px 0;
-                                margin-bottom: 20px;
                             }
                         }
                     </style>
                 </head>
                 <body>
-                    <div class="print-container">
-                        <div class="header">
-                            <div class="bill-number">Bill Number: ${billnum}</div>
-                        </div>
-                        <div class="image-container">
-                            <img src="${dataUrl}" alt="Drawing" class="drawing-image" onload="window.parent.printFrameLoaded()">
-                        </div>
-                    </div>
+                    <header>Bill Number: ${billnum}</header>
+                    <main>
+                        <img src="${dataUrl}" alt="Drawing">
+                    </main>
                 </body>
                 </html>
-            `;
-            
-            // Add a global function to handle frame loading
-            window.printFrameLoaded = function() {
+            `);
+        
+            printWindow.document.close();
+        
+            printWindow.onload = function () {
                 setTimeout(() => {
-                    try {
-                        printFrame.contentWindow.focus();
-                        printFrame.contentWindow.print();
-                        
-                        // Clean up after printing
-                        setTimeout(() => {
-                            if (printFrame && printFrame.parentNode) {
-                                document.body.removeChild(printFrame);
-                            }
-                            delete window.printFrameLoaded;
-                        }, 1000);
-                    } catch (error) {
-                        console.error('Mobile print error:', error);
-                        // Fallback: try to open in new tab for mobile
-                        mobilePrintFallback(dataUrl, billnum);
-                    }
+                    printWindow.focus();
+                    printWindow.print();
+                    printWindow.close();
                 }, 500);
             };
-            
-            // Write content to iframe
-            const frameDoc = printFrame.contentDocument || printFrame.contentWindow.document;
-            frameDoc.open();
-            frameDoc.write(printContent);
-            frameDoc.close();
-            
-            // Fallback timeout
-            setTimeout(() => {
-                if (printFrame && printFrame.parentNode) {
-                    console.log('Mobile print timeout, trying fallback');
-                    mobilePrintFallback(dataUrl, billnum);
-                }
-            }, 5000);
-            
-            showNotification('Preparing print...');
+        
+            showNotification('Opening print dialog...');
         }
-
-        function mobilePrintFallback(dataUrl, billnum) {
-            // Clean up any existing iframe
-            const existingFrame = document.querySelector('iframe[style*="-9999px"]');
-            if (existingFrame) {
-                existingFrame.remove();
-            }
+        
+        function printCanvasMobile(dataUrl, billnum) {
+            // Save current page content
+            const originalContent = document.body.innerHTML;
+            const originalTitle = document.title;
             
-            // For mobile browsers that don't support iframe printing,
-            // create a temporary full-screen overlay
-            const overlay = document.createElement('div');
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: white;
-                z-index: 10000;
-                padding: 20px;
-                box-sizing: border-box;
-                overflow: auto;
-            `;
-            
-            overlay.innerHTML = `
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #333; margin-bottom: 30px;">
-                        <h2 style="margin: 0; font-size: 24px;">Bill Number: ${billnum}</h2>
+            // Create print content
+            const printContent = `
+                <div style="
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background: white;
+                    color: black;
+                    line-height: 1.4;
+                ">
+                    <div style="
+                        text-align: center;
+                        padding: 20px 0;
+                        border-bottom: 2px solid #333;
+                        margin-bottom: 30px;
+                    ">
+                        <h2 style="
+                            margin: 0;
+                            font-size: 24px;
+                            font-weight: bold;
+                            color: #333;
+                        ">Bill Number: ${billnum}</h2>
                     </div>
-                    <div style="text-align: center; padding: 20px 0;">
-                        <img src="${dataUrl}" alt="Drawing" style="max-width: 100%; height: auto; border: 1px solid #ddd;">
+                    <div style="
+                        text-align: center;
+                        padding: 20px 0;
+                    ">
+                        <img src="${dataUrl}" alt="Drawing" style="
+                            max-width: 100%;
+                            height: auto;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                        ">
                     </div>
-                    <div style="text-align: center; margin-top: 30px;">
-                        <button onclick="window.print()" style="background: #007bff; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 4px; cursor: pointer; margin-right: 10px;">Print</button>
-                        <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: #6c757d; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 4px; cursor: pointer;">Close</button>
+                    <div style="
+                        text-align: center;
+                        margin-top: 30px;
+                        padding: 20px;
+                        background: #f8f9fa;
+                        border-radius: 8px;
+                        position: fixed;
+                        bottom: 20px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        z-index: 1000;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    ">
+                        <button onclick="printMobileCanvas()" style="
+                            background: #007bff;
+                            color: white;
+                            border: none;
+                            padding: 12px 24px;
+                            font-size: 16px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-right: 10px;
+                            font-weight: bold;
+                        ">🖨️ Print</button>
+                        <button onclick="restoreMobileCanvas()" style="
+                            background: #6c757d;
+                            color: white;
+                            border: none;
+                            padding: 12px 24px;
+                            font-size: 16px;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-weight: bold;
+                        ">❌ Close</button>
                     </div>
                 </div>
             `;
             
-            document.body.appendChild(overlay);
+            // Add print styles to head
+            const printStyles = document.createElement('style');
+            printStyles.id = 'mobile-print-styles';
+            printStyles.textContent = `
+                @media print {
+                    body * {
+                        visibility: hidden;
+                    }
+                    
+                    #mobile-print-content,
+                    #mobile-print-content * {
+                        visibility: visible;
+                    }
+                    
+                    #mobile-print-content {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        margin: 0;
+                        padding: 20px;
+                        box-sizing: border-box;
+                    }
+                    
+                    #mobile-print-content img {
+                        max-width: 100% !important;
+                        height: auto !important;
+                        border: 1px solid #000 !important;
+                        border-radius: 0 !important;
+                        box-shadow: none !important;
+                        page-break-inside: avoid;
+                    }
+                    
+                    #mobile-print-content h2 {
+                        color: #000 !important;
+                        font-size: 18px !important;
+                        margin-bottom: 20px !important;
+                    }
+                    
+                    #mobile-print-content div[style*="position: fixed"] {
+                        display: none !important;
+                    }
+                    
+                    @page {
+                        margin: 0.5in;
+                        size: auto;
+                    }
+                }
+            `;
             
-            // Auto-trigger print on mobile
-            setTimeout(() => {
+            document.head.appendChild(printStyles);
+            
+            // Replace page content
+            document.body.innerHTML = `<div id="mobile-print-content">${printContent}</div>`;
+            document.title = `Print Drawing - Bill ${billnum}`;
+            
+            // Store original content for restoration
+            window.originalMobileContent = originalContent;
+            window.originalMobileTitle = originalTitle;
+            
+            // Add global functions for mobile print actions
+            window.printMobileCanvas = function() {
+                // Hide the button container before printing
+                const buttonContainer = document.querySelector('div[style*="position: fixed"]');
+                if (buttonContainer) {
+                    buttonContainer.style.display = 'none';
+                }
+                
+                // Trigger print
                 window.print();
-            }, 500);
+                
+                // Show button container after print dialog
+                setTimeout(() => {
+                    if (buttonContainer) {
+                        buttonContainer.style.display = 'block';
+                    }
+                }, 500);
+            };
             
-            showNotification('Print overlay opened');
+            window.restoreMobileCanvas = function() {
+                // Remove print styles
+                const styles = document.getElementById('mobile-print-styles');
+                if (styles) {
+                    styles.remove();
+                }
+                
+                // Restore original content
+                document.body.innerHTML = window.originalMobileContent;
+                document.title = window.originalMobileTitle;
+                
+                // Clean up global functions
+                delete window.printMobileCanvas;
+                delete window.restoreMobileCanvas;
+                delete window.originalMobileContent;
+                delete window.originalMobileTitle;
+                
+                // Reload to restore full functionality
+                location.reload();
+            };
+            
+            // Show notification
+            showNotification('Print view ready. Tap the Print button to print.');
         }
         
         // Clear canvas
