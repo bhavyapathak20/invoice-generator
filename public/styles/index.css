@@ -386,6 +386,10 @@
         width: 100%;
     }
 
+    .response{
+        display : hidden;
+    }
+
     .submit-btn{
         display: none;
     }
