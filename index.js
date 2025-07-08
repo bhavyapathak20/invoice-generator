@@ -266,7 +266,7 @@ app.post("/submit", async(req,res)=>{
 });
 
 
-app.post("/export", async (req, res) => {
+app.get("/export", async (req, res) => {
     try {
         const joinRes = await db.query(
             `SELECT invoice_info.invoice_number, invoice_info.invoice_date, invoice_info.delivery_date,
