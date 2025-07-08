@@ -6,6 +6,16 @@ import bcrypt from "bcrypt";
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
 
 const port = process.env.PORT || 3000;
 
@@ -113,16 +123,16 @@ app.post("/change-password", express.json(), async (req, res) => {
         bcrypt.hash(newPassword, saltRounds, async (err,hash) =>{
             if(err){
                 console.log(err);
+                return res.json({ success: false });
             }else{
                 const result = await db.query(
                 "UPDATE login_info SET user_password = $1",
                 [hash]
             ); 
           console.log(result);
-        //   res.render("secrets.ejs"); 
-        }        
-      })
         res.json({ success: true });
+        }        
+      })  
     } catch (err) {
         console.error("Password update error:", err);
         res.json({ success: false });
