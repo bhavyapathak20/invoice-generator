@@ -457,33 +457,24 @@
         // Save as PNG with proper bounds and centering
         async function saveAsPNG() {
             try {
-                const billnum = prompt("Enter the bill Number:");
-                if (!billnum) return;
-
                 const bounds = getCanvasBounds();
-
+                
+                // Create a temporary canvas for proper export
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
-
-                const exportWidth = Math.min(2000, bounds.width * 2);
+                
+                // Set export dimensions (maintain aspect ratio)
+                const exportWidth = Math.min(2000, bounds.width * 2); // Max 2000px width
                 const exportHeight = (bounds.height / bounds.width) * exportWidth;
-
-                const headerHeight = 100;
-                const totalHeight = exportHeight + headerHeight;
-
+                
                 tempCanvas.width = exportWidth;
-                tempCanvas.height = totalHeight;
-
+                tempCanvas.height = exportHeight;
+                
+                // Fill with white background
                 tempCtx.fillStyle = 'white';
-                tempCtx.fillRect(0, 0, exportWidth, totalHeight);
-
-                // Draw header text
-                tempCtx.fillStyle = '#333';
-                tempCtx.font = 'bold 40px Arial';
-                tempCtx.textAlign = 'center';
-                tempCtx.fillText(`Bill Number: ${billnum}`, exportWidth / 2, 60);
-
-                // Draw canvas content
+                tempCtx.fillRect(0, 0, exportWidth, exportHeight);
+                
+                // Get the original canvas data
                 const originalDataUrl = canvas.toDataURL({
                     format: 'png',
                     quality: 1.0,
@@ -491,57 +482,68 @@
                     top: bounds.top,
                     width: bounds.width,
                     height: bounds.height,
-                    multiplier: 2
+                    multiplier: 1
                 });
-
+                
+                // Create image and draw it centered
                 const img = new Image();
-                img.onload = async function () {
+                img.onload = async function() {
+                    // Calculate position to center the drawing
                     const x = (exportWidth - img.width) / 2;
-                    const y = headerHeight;
-
+                    const y = (exportHeight - img.height) / 2;
+                    
                     tempCtx.drawImage(img, x, y);
-
+                    
+                    // Convert to blob
                     tempCanvas.toBlob(async (blob) => {
+                        // Check if File System Access API is supported
                         if ('showSaveFilePicker' in window) {
                             try {
                                 const fileHandle = await window.showSaveFilePicker({
-                                    suggestedName: `bill-${billnum}.png`,
+                                    suggestedName: 'my-drawing.png',
                                     types: [{
                                         description: 'PNG Images',
-                                        accept: { 'image/png': ['.png'] }
+                                        accept: {
+                                            'image/png': ['.png']
+                                        }
                                     }]
                                 });
-
+                                
                                 const writable = await fileHandle.createWritable();
                                 await writable.write(blob);
                                 await writable.close();
-
+                                
                                 showNotification('PNG saved successfully!');
                             } catch (err) {
-                                if (err.name !== 'AbortError') throw err;
+                                if (err.name !== 'AbortError') {
+                                    throw err;
+                                }
                             }
                         } else {
+                            // Fallback for browsers that don't support File System Access API
+                            const filename = prompt('Enter filename (without extension):', 'my-drawing');
+                            if (!filename) return;
+                            
                             const link = document.createElement('a');
-                            link.download = `bill-${billnum}.png`;
+                            link.download = filename.endsWith('.png') ? filename : filename + '.png';
                             link.href = URL.createObjectURL(blob);
-
+                            
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
                             URL.revokeObjectURL(link.href);
-
+                            
                             showNotification('PNG saved successfully!');
                         }
                     }, 'image/png');
                 };
                 img.src = originalDataUrl;
-
+                
             } catch (error) {
                 console.error('Error saving PNG:', error);
                 showNotification('Error saving PNG file');
             }
         }
-
 
         
         // Export as PDF
