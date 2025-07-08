@@ -142,12 +142,9 @@
         <button class="print-button" onclick="printBill()">Print</button>
     </div>
 
-    <form action="/export" method="post">
-        <div class="exportAll">
-            <button class="exportAllButton" id="exportBtn" type="button">Export All Data in Excel</button>
-            <p id="statusMsg"></p>
-        </div>
-    </form>
+    <div class="exportAll">
+        <button class="exportAllButton" id="exportBtn" type="button">Export All Data in Excel</button>
+    </div>
         
 
 
@@ -300,45 +297,9 @@
         location.reload(); // safest way to restore full functionality
     }
 
-    document.getElementById("exportBtn").addEventListener("click", async function() {
-        const button = this;
-        const statusMsg = document.getElementById("statusMsg");
-        
-        button.disabled = true;
-        button.textContent = 'Exporting...';
-        statusMsg.innerHTML = '<span style="color: blue;">Processing...</span>';
-    
-        try {
-            const response = await fetch("/export", {
-                method: "POST"
-            });
-    
-            if (!response.ok) {
-                throw new Error("Download failed");
-            }
-    
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "All_Invoice_Data.xlsx";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-    
-            statusMsg.innerHTML = '<span style="color: green; font-weight: bold;">Excel downloaded successfully.</span>';
-        } catch (error) {
-            console.error("Download error:", error);
-            statusMsg.innerHTML = '<span style="color: red; font-weight: bold;">नेटवर्क त्रुटि हुई</span>';
-        } finally {
-            button.disabled = false;
-            button.textContent = 'Export All Data in Excel';
-        }
+    document.getElementById("exportBtn").addEventListener("click", function () {
+        window.location.href = "/export";
     });
-
-
-
 
     </script>
 
