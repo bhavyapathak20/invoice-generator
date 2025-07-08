@@ -14,25 +14,10 @@
         }
         
         body {
-            /* font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            /* background: #f5f5f5; */
         } 
-        
-        /* .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 8px 20px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            min-height: 60px;
-        } */
         
         .logo {
             font-size: 24px;
@@ -46,6 +31,9 @@
             gap: 8px;
             align-items: center;
             flex-wrap: wrap;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         }
         
         .tool-group {
@@ -201,50 +189,50 @@
         }
         
         @media (max-width: 768px) {
-            .header {
+            .toolbar {
                 flex-direction: column;
                 gap: 15px;
-            }
-            
-            .toolbar {
-                justify-content: center;
+                align-items: stretch;
             }
             
             .tool-group {
                 flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .tool-btn {
+                flex: 1;
+                min-width: 80px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <!-- <div class="logo">✏️ DrawBoard Pro</div> -->
-        <div class="toolbar">
-            <div class="tool-group">
-                <button class="tool-btn active" data-tool="select">Select</button>
-                <button class="tool-btn" data-tool="pencil">Pencil</button>
-                <button class="tool-btn" data-tool="eraser">Eraser</button>
-                <button class="tool-btn" data-tool="text">Text</button>
-            </div>
-            
-            <div class="tool-group">
-                <input type="color" class="color-picker" id="strokeColor" value="#667eea">
-                <input type="color" class="color-picker" id="fillColor" value="#764ba2">
-            </div>
-            
-            <div class="slider-container">
-                <span>Width:</span>
-                <input type="range" class="slider" id="strokeWidth" min="1" max="20" value="2">
-                <span id="widthValue">2</span>
-            </div>
-            
-            <div class="tool-group">
-                <button class="tool-btn" onclick="importFile()">📁 Import</button>
-                <button class="tool-btn" onclick="saveAsPNG()">💾 Save PNG</button>
-                <button class="tool-btn" onclick="exportPDF()">📄 PDF</button>
-                <button class="tool-btn" onclick="printCanvas()">🖨️ Print</button>
-                <button class="tool-btn" onclick="clearCanvas()">🗑️ Clear</button>
-            </div>
+    <div class="toolbar">
+        <div class="tool-group">
+            <button class="tool-btn active" data-tool="select">Select</button>
+            <button class="tool-btn" data-tool="pencil">Pencil</button>
+            <button class="tool-btn" data-tool="eraser">Eraser</button>
+            <button class="tool-btn" data-tool="text">Text</button>
+        </div>
+        
+        <div class="tool-group">
+            <input type="color" class="color-picker" id="strokeColor" value="#667eea">
+            <input type="color" class="color-picker" id="fillColor" value="#764ba2">
+        </div>
+        
+        <div class="slider-container">
+            <span>Width:</span>
+            <input type="range" class="slider" id="strokeWidth" min="1" max="20" value="2">
+            <span id="widthValue">2</span>
+        </div>
+        
+        <div class="tool-group">
+            <button class="tool-btn" onclick="importFile()">📁 Import</button>
+            <button class="tool-btn" onclick="saveAsPNG()">💾 Save PNG</button>
+            <button class="tool-btn" onclick="exportPDF()">📄 PDF</button>
+            <button class="tool-btn" onclick="printCanvas()">🖨️ Print</button>
+            <button class="tool-btn" onclick="clearCanvas()">🗑️ Clear</button>
         </div>
     </div>
     
@@ -257,7 +245,7 @@
     </div>
     
     <div class="status-bar">
-        <span>Ready • Use mouse to draw • Right-click to access context menu</span>
+        <span>Ready • Use touch/mouse to draw • Right-click to access context menu</span>
         <span id="coords">Position: (0, 0)</span>
     </div>
     
@@ -268,12 +256,12 @@
     <script>
         // Calculate canvas size based on available space
         function calculateCanvasSize() {
-            const headerHeight = 60;
+            const toolbarHeight = document.querySelector('.toolbar').offsetHeight || 100;
             const statusBarHeight = 40;
-            const padding = 20; // 10px padding on each side
+            const padding = 20;
             
             const availableWidth = window.innerWidth - padding;
-            const availableHeight = window.innerHeight - headerHeight - statusBarHeight - padding;
+            const availableHeight = window.innerHeight - toolbarHeight - statusBarHeight - padding;
             
             return {
                 width: Math.max(800, availableWidth),
@@ -302,17 +290,14 @@
             canvas.selection = false;
             isErasing = true;
             
-            // Use PencilBrush with white color to "erase" (paint over with background color)
             canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
             canvas.freeDrawingBrush.width = parseInt(document.getElementById('strokeWidth').value) * 2;
-            canvas.freeDrawingBrush.color = 'white'; // Use white to match canvas background
+            canvas.freeDrawingBrush.color = 'white';
             
-            // Update cursor
             updateEraserCursor();
         }
         
         function updateEraserCursor() {
-            // Simple crosshair cursor for eraser
             canvas.freeDrawingCursor = 'crosshair';
         }
         
@@ -329,12 +314,10 @@
                 document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 
-                // Clean up previous tool
                 cleanupEraser();
                 
                 currentTool = e.target.dataset.tool;
                 
-                // Set canvas mode based on tool
                 if (currentTool === 'select') {
                     canvas.isDrawingMode = false;
                     canvas.selection = true;
@@ -420,7 +403,6 @@
             } else if (file.type.startsWith('image/')) {
                 reader.onload = (e) => {
                     fabric.Image.fromURL(e.target.result, (img) => {
-                        // Scale image to fit canvas
                         const maxWidth = canvas.width * 0.8;
                         const maxHeight = canvas.height * 0.8;
                         const scale = Math.min(maxWidth / img.width, maxHeight / img.height);
@@ -462,7 +444,6 @@
                 maxY = Math.max(maxY, bounds.top + bounds.height);
             });
             
-            // Add some padding
             const padding = 20;
             return {
                 left: Math.max(0, minX - padding),
@@ -477,22 +458,18 @@
             try {
                 const bounds = getCanvasBounds();
                 
-                // Create a temporary canvas for proper export
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
                 
-                // Set export dimensions (maintain aspect ratio)
-                const exportWidth = Math.min(2000, bounds.width * 2); // Max 2000px width
+                const exportWidth = Math.min(2000, bounds.width * 2);
                 const exportHeight = (bounds.height / bounds.width) * exportWidth;
                 
                 tempCanvas.width = exportWidth;
                 tempCanvas.height = exportHeight;
                 
-                // Fill with white background
                 tempCtx.fillStyle = 'white';
                 tempCtx.fillRect(0, 0, exportWidth, exportHeight);
                 
-                // Get the original canvas data
                 const originalDataUrl = canvas.toDataURL({
                     format: 'png',
                     quality: 1.0,
@@ -503,18 +480,14 @@
                     multiplier: 1
                 });
                 
-                // Create image and draw it centered
                 const img = new Image();
                 img.onload = async function() {
-                    // Calculate position to center the drawing
                     const x = (exportWidth - img.width) / 2;
                     const y = (exportHeight - img.height) / 2;
                     
                     tempCtx.drawImage(img, x, y);
                     
-                    // Convert to blob
                     tempCanvas.toBlob(async (blob) => {
-                        // Check if File System Access API is supported
                         if ('showSaveFilePicker' in window) {
                             try {
                                 const fileHandle = await window.showSaveFilePicker({
@@ -538,7 +511,6 @@
                                 }
                             }
                         } else {
-                            // Fallback for browsers that don't support File System Access API
                             const filename = prompt('Enter filename (without extension):', 'my-drawing');
                             if (!filename) return;
                             
@@ -570,7 +542,6 @@
             
             const bounds = getCanvasBounds();
             
-            // Get the cropped image data with proper bounds
             const imgData = canvas.toDataURL({
                 format: 'png',
                 quality: 1.0,
@@ -581,7 +552,6 @@
                 multiplier: 1
             });
             
-            // Calculate dimensions to fit PDF page while maintaining aspect ratio
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
             const margin = 10;
@@ -594,16 +564,13 @@
             
             let finalWidth, finalHeight;
             if (imgAspectRatio > availableAspectRatio) {
-                // Image is wider than available space
                 finalWidth = availableWidth;
                 finalHeight = availableWidth / imgAspectRatio;
             } else {
-                // Image is taller than available space
                 finalHeight = availableHeight;
                 finalWidth = availableHeight * imgAspectRatio;
             }
             
-            // Center the image on the PDF page
             const x = (pdfWidth - finalWidth) / 2;
             const y = (pdfHeight - finalHeight) / 2;
             
@@ -612,7 +579,8 @@
             showNotification('PDF exported successfully!');
         }
         
-       function printCanvas() {
+        // Fixed print function that works across all devices
+        function printCanvas() {
             const bounds = getCanvasBounds();
             const dataUrl = canvas.toDataURL({
                 format: 'png',
@@ -624,142 +592,162 @@
                 multiplier: 2
             });
             
-            const billnum = prompt("Enter the bill Number :");
+            const billnum = prompt("Enter the bill Number:");
             if (!billnum) return;
             
-            // Check if it's a mobile device
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+            // Create a consistent print layout that works on all devices
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Print Drawing</title>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            background: white;
+                            width: 100%;
+                            height: 100vh;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
+                        }
+                        .print-container {
+                            width: 90%;
+                            max-width: 800px;
+                            text-align: center;
+                        }
+                        .header {
+                            font-size: 24px;
+                            font-weight: bold;
+                            margin-bottom: 20px;
+                            color: #333;
+                        }
+                        .drawing {
+                            width: 100%;
+                            max-width: 100%;
+                            height: auto;
+                            border: 1px solid #ddd;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                        }
+                        
+                        @media print {
+                            body { 
+                                background: white;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .print-container {
+                                width: 100%;
+                                max-width: none;
+                                height: 100vh;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: flex-start;
+                                align-items: center;
+                                padding: 20px;
+                            }
+                            .header {
+                                font-size: 20px;
+                                margin-bottom: 15px;
+                                page-break-inside: avoid;
+                            }
+                            .drawing {
+                                max-width: 100%;
+                                max-height: calc(100vh - 80px);
+                                border: none;
+                                box-shadow: none;
+                                page-break-inside: avoid;
+                            }
+                        }
+                        
+                        @page {
+                            size: auto;
+                            margin: 0.5in;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-container">
+                        <div class="header">Bill Number: ${billnum}</div>
+                        <img class="drawing" src="${dataUrl}" alt="Drawing" onload="window.print()">
+                    </div>
+                </body>
+                </html>
+            `;
             
-            if (isMobile) {
-                // Mobile-friendly approach: create a new page in the same window
-                const originalContent = document.body.innerHTML;
-                const originalTitle = document.title;
-                
-                // Create the print content
-                const printContent = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Print Drawing</title>
-                        <style>
-                            body { margin: 0; padding: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
-                            header { padding: 20px; text-align: center; font-size: 18px; font-weight: bold; border-bottom: 1px solid #ccc; }
-                            main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-                            img { max-width: 90%; max-height: 90%; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-                            @media print {
-                                header { padding: 10px 0; font-size: 16px; border: none; }
-                                main { padding: 0; }
-                                img { display: block; margin: 0 auto; box-shadow: none; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <header>Bill Number: ${billnum}</header>
-                        <main>
-                            <img src="${dataUrl}" alt="Drawing">
-                        </main>
-                    </body>
-                    </html>
-                `;
-                
-                // Replace current page content
-                document.open();
-                document.write(printContent);
-                document.close();
-                
-                // Wait for image to load, then print
-                const img = document.querySelector('img');
-                if (img) {
-                    img.onload = function() {
-                        setTimeout(() => {
-                            window.print();
-                            // Restore original content after printing
-                            setTimeout(() => {
-                                document.open();
-                                document.write(`<!DOCTYPE html><html><head><title>${originalTitle}</title></head><body>${originalContent}</body></html>`);
-                                document.close();
-                                // Reload the page to restore full functionality
-                                window.location.reload();
-                            }, 1000);
-                        }, 500);
-                    };
-                    
-                    // Fallback if image is already loaded
-                    if (img.complete) {
-                        img.onload();
-                    }
-                }
-            } else {
-                // Desktop approach: use popup window
-                const printWindow = window.open('', '', 'width=900,height=700');
-                
-                if (!printWindow) {
-                    // Fallback if popup is blocked
-                    alert('Popup blocked. Please allow popups for this site and try again.');
-                    return;
-                }
-                
-                printWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Print Drawing</title>
-                        <style>
-                            body { margin: 0; padding: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
-                            header { padding: 20px; text-align: center; font-size: 18px; font-weight: bold; border-bottom: 1px solid #ccc; }
-                            main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-                            img { max-width: 90%; max-height: 90%; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-                            @media print {
-                                header { padding: 10px 0; font-size: 16px; border: none; }
-                                main { padding: 0; }
-                                img { display: block; margin: 0 auto; box-shadow: none; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <header>Bill Number: ${billnum}</header>
-                        <main>
-                            <img src="${dataUrl}" alt="Drawing">
-                        </main>
-                    </body>
-                    </html>
-                `);
-                
+            // Use a consistent approach for all devices
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            
+            if (printWindow) {
+                printWindow.document.write(printContent);
                 printWindow.document.close();
                 
-                // Wait for the window to load completely
-                printWindow.onload = function() {
-                    const img = printWindow.document.querySelector('img');
-                    if (img) {
-                        img.onload = function() {
-                            setTimeout(() => {
-                                printWindow.focus();
-                                printWindow.print();
-                                printWindow.close();
-                            }, 500);
-                        };
-                        
-                        // Fallback if image is already loaded
-                        if (img.complete) {
-                            img.onload();
-                        }
-                    }
-                };
-                
-                // Additional fallback with longer timeout
+                // Backup print trigger in case onload doesn't work
                 setTimeout(() => {
                     if (printWindow && !printWindow.closed) {
-                        printWindow.focus();
                         printWindow.print();
-                        printWindow.close();
+                        // Close window after printing on desktop
+                        if (window.innerWidth > 768) {
+                            setTimeout(() => printWindow.close(), 1000);
+                        }
                     }
-                }, 2000);
+                }, 1500);
+            } else {
+                // Fallback for blocked popups - use current window
+                const originalContent = document.documentElement.innerHTML;
+                document.documentElement.innerHTML = printContent;
+                
+                // Wait for image to load then print
+                const img = document.querySelector('.drawing');
+                if (img) {
+                    img.onload = () => {
+                        setTimeout(() => {
+                            window.print();
+                            // Restore original content
+                            document.documentElement.innerHTML = originalContent;
+                            window.location.reload();
+                        }, 500);
+                    };
+                    if (img.complete) img.onload();
+                }
             }
             
             showNotification('Opening print dialog...');
         }
         
-        //Show notification
+        // Fixed clear canvas function that works on all devices
+        function clearCanvas() {
+            if (confirm('Are you sure you want to clear the entire canvas? This action cannot be undone.')) {
+                try {
+                    // Clear all objects
+                    canvas.clear();
+                    
+                    // Reset canvas background
+                    canvas.backgroundColor = 'white';
+                    
+                    // Clear any drawing mode paths
+                    canvas.isDrawingMode = false;
+                    canvas.selection = true;
+                    
+                    // Reset to select tool
+                    document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
+                    document.querySelector('.tool-btn[data-tool="select"]').classList.add('active');
+                    currentTool = 'select';
+                    
+                    // Force canvas refresh
+                    canvas.renderAll();
+                    
+                    showNotification('Canvas cleared successfully!');
+                } catch (error) {
+                    console.error('Error clearing canvas:', error);
+                    showNotification('Error clearing canvas');
+                }
+            }
+        }
+        
+        // Show notification
         function showNotification(message) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
@@ -780,7 +768,7 @@
         
         // Context menu for additional options
         canvas.on('mouse:down', (e) => {
-            if (e.e.button === 2) { // Right click
+            if (e.e.button === 2) {
                 e.e.preventDefault();
                 const object = canvas.getActiveObject();
                 if (object) {
@@ -816,6 +804,11 @@
         canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
         canvas.freeDrawingBrush.width = 2;
         canvas.freeDrawingBrush.color = '#667eea';
+        
+        // Add touch event support for mobile devices
+        canvas.on('touch:gesture', (e) => {
+            e.e.preventDefault();
+        });
     </script>
 </body>
 </html>
