@@ -271,33 +271,184 @@
         const billElement = document.querySelector(".bill");
         const clone = billElement.cloneNode(true);
 
-        // Manually copy values to the clone
+        // Get all form elements from original
         const inputs = billElement.querySelectorAll("input, textarea, select");
         const cloneInputs = clone.querySelectorAll("input, textarea, select");
 
+        // Copy values and convert inputs to plain text for printing
         inputs.forEach((input, index) => {
+            const cloneInput = cloneInputs[index];
+            
             if (input.type === "checkbox" || input.type === "radio") {
-                cloneInputs[index].checked = input.checked;
+                cloneInput.checked = input.checked;
+                
+                // For mobile compatibility, also set the value attribute
+                if (input.checked) {
+                    cloneInput.setAttribute('checked', 'checked');
+                } else {
+                    cloneInput.removeAttribute('checked');
+                }
+            } else if (input.tagName === "SELECT") {
+                // Handle select elements
+                cloneInput.value = input.value;
+                
+                // Set selected attribute on the correct option
+                const originalOptions = input.querySelectorAll('option');
+                const cloneOptions = cloneInput.querySelectorAll('option');
+                
+                originalOptions.forEach((option, optIndex) => {
+                    if (option.selected) {
+                        cloneOptions[optIndex].setAttribute('selected', 'selected');
+                    } else {
+                        cloneOptions[optIndex].removeAttribute('selected');
+                    }
+                });
             } else {
-                cloneInputs[index].value = input.value;
+                // Handle input and textarea elements
+                cloneInput.value = input.value;
+                cloneInput.setAttribute('value', input.value);
+                
+                // For textarea, also set the text content
+                if (input.tagName === "TEXTAREA") {
+                    cloneInput.textContent = input.value;
+                }
             }
         });
 
-        // Save original HTML
-        const originalHTML = document.body.innerHTML;
-
-        // Replace body with cloned bill
-        document.body.innerHTML = "";
-        document.body.appendChild(clone);
-
-        // Trigger print
-        window.print();
-
-        // Restore original HTML after printing
-        document.body.innerHTML = originalHTML;
-
-        // Re-bind any JS (optional)
-        location.reload(); // safest way to restore full functionality
+        // Create a hidden iframe for printing (more mobile-friendly)
+        const printFrame = document.createElement('iframe');
+        printFrame.style.position = 'absolute';
+        printFrame.style.top = '-9999px';
+        printFrame.style.left = '-9999px';
+        printFrame.style.width = '0px';
+        printFrame.style.height = '0px';
+        printFrame.style.border = 'none';
+        
+        document.body.appendChild(printFrame);
+        
+        // Get the current page's stylesheets
+        const stylesheets = Array.from(document.styleSheets);
+        let cssText = '';
+        
+        stylesheets.forEach(sheet => {
+            try {
+                if (sheet.cssRules) {
+                    Array.from(sheet.cssRules).forEach(rule => {
+                        cssText += rule.cssText + '\n';
+                    });
+                }
+            } catch (e) {
+                // Handle cross-origin stylesheets
+                if (sheet.href) {
+                    cssText += `@import url("${sheet.href}");\n`;
+                }
+            }
+        });
+        
+        // Prepare the iframe content
+        const frameDoc = printFrame.contentDocument || printFrame.contentWindow.document;
+        frameDoc.open();
+        frameDoc.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Print Bill</title>
+                <style>
+                    ${cssText}
+                    
+                    /* Additional print-specific styles */
+                    @media print {
+                        * {
+                            -webkit-print-color-adjust: exact !important;
+                            color-adjust: exact !important;
+                        }
+                        
+                        input[type="checkbox"]:checked::before {
+                            content: "✓" !important;
+                            display: inline-block !important;
+                            font-size: 12px !important;
+                            line-height: 1 !important;
+                        }
+                        
+                        input[type="radio"]:checked::before {
+                            content: "●" !important;
+                            display: inline-block !important;
+                            font-size: 12px !important;
+                            line-height: 1 !important;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                ${clone.outerHTML}
+            </body>
+            </html>
+        `);
+        frameDoc.close();
+        
+        // Wait for the iframe to load completely
+        printFrame.onload = function() {
+            try {
+                // Focus the iframe and trigger print
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+                
+                // Clean up after printing
+                setTimeout(() => {
+                    document.body.removeChild(printFrame);
+                }, 1000);
+            } catch (error) {
+                console.error('Print error:', error);
+                // Fallback to original method if iframe fails
+                fallbackPrint();
+            }
+        };
+        
+        // Fallback function for browsers that don't support iframe printing
+        function fallbackPrint() {
+            // Clean up the iframe if it exists
+            if (printFrame && printFrame.parentNode) {
+                document.body.removeChild(printFrame);
+            }
+            
+            // Save original HTML
+            const originalHTML = document.body.innerHTML;
+            
+            // Replace body with cloned bill
+            document.body.innerHTML = "";
+            document.body.appendChild(clone);
+            
+            // Add print styles directly to the document
+            const printStyles = document.createElement('style');
+            printStyles.textContent = `
+                @media print {
+                    * {
+                        -webkit-print-color-adjust: exact !important;
+                        color-adjust: exact !important;
+                    }
+                }
+            `;
+            document.head.appendChild(printStyles);
+            
+            // Trigger print
+            window.print();
+            
+            // Restore original HTML after printing
+            setTimeout(() => {
+                document.body.innerHTML = originalHTML;
+                location.reload(); // Restore full functionality
+            }, 500);
+        }
+        
+        // Set a timeout fallback in case iframe doesn't load
+        setTimeout(() => {
+            if (printFrame && printFrame.parentNode) {
+                console.log('Iframe print timeout, using fallback');
+                fallbackPrint();
+            }
+        }, 3000);
     }
 
     document.getElementById("exportBtn").addEventListener("click", async function() {
