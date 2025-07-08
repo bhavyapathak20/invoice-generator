@@ -642,60 +642,22 @@
                     <head>
                         <title>Print Drawing</title>
                         <style>
-                            body {
-                                    margin: 0;
-                                    padding: 0;
-                                    font-family: sans-serif;
-                                }
-                                
-                                .print-container {
-                                    page-break-inside: avoid;
-                                    display: flex;
-                                    flex-direction: column;
-                                    align-items: center;
-                                    padding: 20px;
-                                }
-                                
-                                header {
-                                    text-align: center;
-                                    font-size: 18px;
-                                    font-weight: bold;
-                                    margin-bottom: 10px;
-                                }
-                                
-                                main {
-                                    display: flex;
-                                    justify-content: center;
-                                    width: 100%;
-                                }
-                                
-                                img {
-                                    max-width: 90%;
-                                    max-height: 90%;
-                                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                                }
-                                
-                                @media print {
-                                    .print-container {
-                                        page-break-inside: avoid;
-                                    }
-                                    img {
-                                        display: block;
-                                        margin: 0 auto;
-                                        box-shadow: none;
-                                    }
-                                }
-
+                            body { margin: 0; padding: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
+                            header { padding: 20px; text-align: center; font-size: 18px; font-weight: bold; border-bottom: 1px solid #ccc; }
+                            main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+                            img { max-width: 90%; max-height: 90%; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+                            @media print {
+                                header { padding: 10px 0; font-size: 16px; border: none; }
+                                main { padding: 0; }
+                                img { display: block; margin: 0 auto; box-shadow: none; }
+                            }
                         </style>
-
                     </head>
                     <body>
-                        <div class="print-container">
-                            <header>Bill Number: ${billnum}</header>
-                            <main>
-                                <img src="${dataUrl}" alt="Drawing">
-                            </main>
-                        </div>
+                        <header>Bill Number: ${billnum}</header>
+                        <main>
+                            <img src="${dataUrl}" alt="Drawing">
+                        </main>
                     </body>
                     </html>
                 `;
@@ -795,16 +757,6 @@
             }
             
             showNotification('Opening print dialog...');
-        }
-                
-        // Clear canvas
-        function clearCanvas() {
-            if (confirm('Are you sure you want to clear the canvas?')) {
-                canvas.clear();
-                canvas.backgroundColor = 'white';
-                canvas.renderAll();
-                showNotification('Canvas cleared!');
-            }
         }
         
         //Show notification
