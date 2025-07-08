@@ -142,9 +142,12 @@
         <button class="print-button" onclick="printBill()">Print</button>
     </div>
 
-    <div class="exportAll">
-        <button class="exportAllButton" id="exportBtn" type="button">Export All Data in Excel</button>
-    </div>
+    <form action="/export" method="post">
+        <div class="exportAll">
+            <button class="exportAllButton" id="exportBtn" type="button">Export All Data in Excel</button>
+            <p id="statusMsg"></p>
+        </div>
+    </form>
         
 
 
@@ -297,8 +300,37 @@
         location.reload(); // safest way to restore full functionality
     }
 
-    document.getElementById("exportBtn").addEventListener("click", function () {
-        window.location.href = "/export";
+    document.getElementById("exportBtn").addEventListener("click", async function() {
+        const button = this;
+        const statusMsg = document.getElementById("statusMsg");
+        
+        // Show loading state
+        button.disabled = true;
+        button.textContent = 'Exporting...';
+        statusMsg.innerHTML = '<span style="color: blue;">Processing...</span>';
+        
+        try {
+            const response = await fetch("/export", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                statusMsg.innerHTML = `<span style="color: green; font-weight: bold;">${data.message}</span>`;
+            } else {
+                statusMsg.innerHTML = '<span style="color: red; font-weight: bold;">Export failed</span>';
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            statusMsg.innerHTML = '<span style="color: red; font-weight: bold;">नेटवर्क त्रुटि हुई</span>';
+        } finally {
+            // Reset button state
+            button.disabled = false;
+            button.textContent = 'Export All Data in Excel';
+        }
     });
 
     </script>
