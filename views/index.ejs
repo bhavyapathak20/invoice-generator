@@ -144,7 +144,7 @@
 
     <form action="/export" method="post">
         <div class="exportAll">
-            <button class="exportAllButton" id="exportBtn" type="button">Export All Data in Excel</button>
+            <button class="exportAllButton" id="exportBtn" type="button">Export All Data (Excel)</button>
             <p id="statusMsg"></p>
         </div>
     </form>
@@ -306,7 +306,7 @@
         
         // Show loading state
         button.disabled = true;
-        button.textContent = 'Exporting...';
+        button.textContent = 'Exporting Excel...';
         statusMsg.innerHTML = '<span style="color: blue;">Processing...</span>';
         
         try {
@@ -318,8 +318,26 @@
             });
 
             if (response.ok) {
-                const data = await response.json();
-                statusMsg.innerHTML = `<span style="color: green; font-weight: bold;">${data.message}</span>`;
+                // Check if response is JSON (error) or file (success)
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    const data = await response.json();
+                    statusMsg.innerHTML = `<span style="color: red; font-weight: bold;">${data.message}</span>`;
+                } else {
+                    // Handle file download
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `All_Invoice_Data_${new Date().toISOString().split('T')[0]}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    statusMsg.innerHTML = '<span style="color: green; font-weight: bold;">Excel file downloaded successfully!</span>';
+                }
             } else {
                 statusMsg.innerHTML = '<span style="color: red; font-weight: bold;">Export failed</span>';
             }
@@ -329,7 +347,7 @@
         } finally {
             // Reset button state
             button.disabled = false;
-            button.textContent = 'Export All Data in Excel';
+            button.textContent = 'Export All Data (Excel)';
         }
     });
 
