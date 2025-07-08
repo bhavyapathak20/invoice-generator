@@ -7,6 +7,8 @@ import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import fs from "fs";
 
+const port = process.env.PORT || 3000;
+
 const app = express();
 const db = new pg.Client({
     host: "localhost",
@@ -457,6 +459,6 @@ app.post("/new-bill", (req,res)=>{
 })
 
 
-app.listen(3000, ()=>{
-    console.log("server started on port 3000");
-})
+app.listen(port, () => {
+    console.log(`Server started on port ${port}`);
+});
