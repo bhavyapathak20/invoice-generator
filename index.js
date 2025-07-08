@@ -23,7 +23,7 @@ const port = process.env.PORT || 3000;
 
 
 const db = new pg.Client({
-    connectionString: 'postgresql://postgres:HUdYoiqyEXtmLOdATezjqAqoGtUWhMoN@postgres.railway.internal:5432/railway',
+    connectionString: 'postgresql://postgres:HUdYoiqyEXtmLOdATezjqAqoGtUWhMoN@yamanote.proxy.rlwy.net:14803/railway',
     ssl: {
         rejectUnauthorized: false
     }
