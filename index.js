@@ -11,11 +11,10 @@ const port = process.env.PORT || 3000;
 
 const app = express();
 const db = new pg.Client({
-    host: "localhost",
-    user : "postgres",
-    database : "invoice-generator",
-    password : "Passw0rd",
-    port : 5432
+    connectionString: 'postgresql://postgres:HUdYoiqyEXtmLOdATezjqAqoGtUWhMoN@postgres.railway.internal:5432/railway',
+    ssl: {
+        rejectUnauthorized: false
+    }
 })
 let currentOTP = null;
 const saltRounds = 2;
