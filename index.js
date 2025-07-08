@@ -13,13 +13,15 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const app = express();
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 
 const port = process.env.PORT || 3000;
 
-const app = express();
+
 const db = new pg.Client({
     connectionString: 'postgresql://postgres:HUdYoiqyEXtmLOdATezjqAqoGtUWhMoN@postgres.railway.internal:5432/railway',
     ssl: {
@@ -38,7 +40,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.get("/", (req,res) =>{
     // res.redirect("/new-invoice");
-    res.render("login.ejs");
+    res.render("login");
 });
 
 
@@ -148,7 +150,7 @@ app.get("/new-invoice", async(req,res)=>{
         const getLastBillNum = result.rows[0].last_invoice_num || 0;
         const nextInvoiceNum = getLastBillNum + 1;
 
-        res.render("index.ejs", {invoice_number : nextInvoiceNum});
+        res.render("index", {invoice_number : nextInvoiceNum});
     }catch(err){
         console.log(err);
         res.status(500).send("Error Loading the form");
