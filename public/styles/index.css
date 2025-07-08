@@ -38,8 +38,8 @@
 }
 
 .logo-on-bill{
-    width: 30%;
-    height: 10%;
+    width: 35%;
+    /* height: 5%; */
     margin: 0 auto;
 }
 
@@ -225,7 +225,7 @@
                         /* ------- Buttons -------- */
 
 
-.print-button, .new_bill{
+.print-button, .new_bill, .exportAllButton{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -323,7 +323,7 @@
         width: 80%;
     }
 
-    .print-button, .new_bill{
+    .print-button, .new_bill, .exportAllButton{
         width: 80%;
     }
 
@@ -342,7 +342,7 @@
         font-size: 12px;
     }
 
-    .print-button, .new_bill{
+    .print-button, .new_bill, .exportAllButton{
         font-size: 20px;
         padding: 0;
         width: 100%;

@@ -20,7 +20,7 @@
     <div class="bill">
         <div class="logo-info">
             <p style="color: #A5158C; font-weight: bold;" class="prayer">|| जय गुरुदेव ||</p>
-            <img class="logo-on-bill" src="/images/logo.png" alt="">
+            <img class="logo-on-bill" src="/images/VijayTailors.png" alt="">
             <pre style="color: #A5158C; font-weight: bold;" class="store-address">ए-1, मंगलश्री अपार्टमेंट, तिलक नगर, इंदौर      टेलीफोन: 2497963, मोबाइल: 7693057579</pre>
         </div>
 
@@ -141,6 +141,13 @@
     <div class="print-bill">
         <button class="print-button" onclick="printBill()">Print</button>
     </div>
+
+    <form action="/export" method="post">
+        <div class="exportAll">
+            <button class="exportAllButton" id="exportBtn" type="button">Export All Data in Excel</button>
+            <p id="statusMsg"></p>
+        </div>
+    </form>
         
 
 
@@ -292,6 +299,39 @@
         // Re-bind any JS (optional)
         location.reload(); // safest way to restore full functionality
     }
+
+    document.getElementById("exportBtn").addEventListener("click", async function() {
+        const button = this;
+        const statusMsg = document.getElementById("statusMsg");
+        
+        // Show loading state
+        button.disabled = true;
+        button.textContent = 'Exporting...';
+        statusMsg.innerHTML = '<span style="color: blue;">Processing...</span>';
+        
+        try {
+            const response = await fetch("/export", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                statusMsg.innerHTML = `<span style="color: green; font-weight: bold;">${data.message}</span>`;
+            } else {
+                statusMsg.innerHTML = '<span style="color: red; font-weight: bold;">Export failed</span>';
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            statusMsg.innerHTML = '<span style="color: red; font-weight: bold;">नेटवर्क त्रुटि हुई</span>';
+        } finally {
+            // Reset button state
+            button.disabled = false;
+            button.textContent = 'Export All Data in Excel';
+        }
+    });
 
 
 
