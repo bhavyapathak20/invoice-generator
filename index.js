@@ -44,36 +44,33 @@ app.get("/", (req,res) =>{
 });
 
 
-app.post("/login", async (req,res)=>{
+app.post("/login", async (req, res) => {
     const getUser = req.body.username;
     const getPass = req.body.password;
 
-    try{
+    try {
         const checkUser = await db.query(
-            "SELECT * FROM login_info WHERE username = $1", [getUser]
+            "SELECT * FROM login_info WHERE username = $1",
+            [getUser]
         );
 
-        if(checkUser.rows.length > 0){
+        if (checkUser.rows.length > 0) {
             const user = checkUser.rows[0];
             const storedPassword = user.user_password;
 
+            const result = await bcrypt.compare(getPass, storedPassword);
 
-            bcrypt.compare(getPass, storedPassword, async (err, result)=>{
-                if(err){
-                    console.log(err);
-                }else{
-                if(result){
-                    res.redirect("/new-invoice");
-                }else{
-                    res.redirect("/");
-                }
-                }
-            })
-        }else{
+            if (result) {
+                res.redirect("/new-invoice");
+            } else {
+                res.redirect("/");
+            }
+        } else {
             res.redirect("/");
         }
-    }catch(err){
-        console.log(err)
+    } catch (err) {
+        console.error("Login error:", err);
+        res.status(500).send("Internal Server Error");
     }
 });
 
