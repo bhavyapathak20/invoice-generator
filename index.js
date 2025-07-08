@@ -266,13 +266,18 @@ app.post("/submit", async(req,res)=>{
 });
 
 
-app.post("/export", async(req,res)=>{
-    try{
+app.post("/export", async (req, res) => {
+    try {
         const joinRes = await db.query(
-            "SELECT invoice_info.invoice_number, invoice_info.invoice_date, invoice_info.delivery_date, invoice_info.customer_name, invoice_info.customer_phone,invoice_info.money_total,invoice_info.money_advance,invoice_info.money_remaining,invoice_items.quantity, invoice_items.product,invoice_items.product_money FROM invoice_info JOIN invoice_items ON invoice_info.id = invoice_items.invoice_id;"
+            `SELECT invoice_info.invoice_number, invoice_info.invoice_date, invoice_info.delivery_date,
+                    invoice_info.customer_name, invoice_info.customer_phone, invoice_info.money_total,
+                    invoice_info.money_advance, invoice_info.money_remaining, invoice_items.quantity,
+                    invoice_items.product, invoice_items.product_money
+             FROM invoice_info 
+             JOIN invoice_items ON invoice_info.id = invoice_items.invoice_id;`
         );
 
-        const workbook = new ExcelJs.Workbook();
+        const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet("All_Invoice_Data");
 
         sheet.properties.defaultColWidth = 17;
@@ -283,25 +288,13 @@ app.post("/export", async(req,res)=>{
             key: key,
         }));
 
-        sheet.getRow(1).eachCell((cell) => {
-             cell.fill = {
-                type: "pattern",
-                pattern: "solid",
-                fgColor: { argb: "FFB7DEE8" } // Light blue
-            };
-            cell.font = { bold: false };
-        });
-
         let previousInvoice = null;
         let rowIndex = 2;
 
         joinRes.rows.forEach((row, i) => {
             const currentInvoice = row.invoice_number;
-
-            // Clone the row to avoid mutating original data
             const cleanRow = { ...row };
 
-            // Blank out repeated invoice info
             if (currentInvoice === previousInvoice) {
                 cleanRow.invoice_number = "";
                 cleanRow.invoice_date = "";
@@ -313,12 +306,9 @@ app.post("/export", async(req,res)=>{
                 cleanRow.money_remaining = "";
             }
 
-            // Add cleaned row
             sheet.addRow(cleanRow);
-            sheet.getRow(rowIndex).height = 20;
             rowIndex++;
 
-            // Insert empty row after last line of each invoice
             const nextInvoice = joinRes.rows[i + 1]?.invoice_number;
             if (currentInvoice !== nextInvoice) {
                 sheet.addRow([]);
@@ -328,19 +318,19 @@ app.post("/export", async(req,res)=>{
             previousInvoice = currentInvoice;
         });
 
+        // ✅ Stream Excel file to browser
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", "attachment; filename=All_Invoice_Data.xlsx");
 
-        await workbook.xlsx.writeFile("All_Invoice_Data.xlsx");
-        console.log("Excel file updated successfully.");
-        res.json({
-            success: true,
-            message: "Excel updated successfully."
-        });
+        await workbook.xlsx.write(res);
+        res.end(); // ✅ Important: close the stream
 
-    }catch(err){
+    } catch (err) {
         console.error(err);
-        res.status(500).send("Error inserting data or updating Excel.");
+        res.status(500).send("Error generating Excel.");
     }
 });
+
 
 // Separate function to handle Excel updates
 async function updateExcelFile(invoiceId) {
