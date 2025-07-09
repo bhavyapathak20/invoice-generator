@@ -393,4 +393,10 @@
     .submit-btn{
         display: none;
     }
+
+    .logo-on-bill{
+        margin: 0;
+        margin-left: 0;
+    }
+
 }
