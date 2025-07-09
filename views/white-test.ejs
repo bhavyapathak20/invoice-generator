@@ -661,14 +661,13 @@
                             color: #333;
                         }
                         .drawing {
+                            width: 100%;
                             max-width: 100%;
-                            max-height: calc(100vh - 120px);
-                            border: none;
-                            box-shadow: none;
-                            page-break-inside: avoid;
-                            margin-top: 20px;
+                            height: auto;
+                            border: 1px solid #ddd;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
                         }
-                                                
+                        
                         @media print {
                             body { 
                                 background: white;
@@ -678,12 +677,12 @@
                             .print-container {
                                 width: 100%;
                                 max-width: none;
-                                height: auto;
+                                height: 100vh;
                                 display: flex;
                                 flex-direction: column;
                                 justify-content: flex-start;
                                 align-items: center;
-                                padding: 15px;
+                                padding: 20px;
                             }
                             .header {
                                 font-size: 20px;
