@@ -616,8 +616,7 @@
             showNotification('PDF exported successfully!');
         }
         
-        // Fixed print function that works across all devices
-        function printCanvas() {
+       function printCanvas() {
             const bounds = getCanvasBounds();
             const dataUrl = canvas.toDataURL({
                 format: 'png',
@@ -640,67 +639,78 @@
                     <title>Print Drawing</title>
                     <style>
                         * { margin: 0; padding: 0; box-sizing: border-box; }
-                        body {
-                            font-family: Arial, sans-serif;
+                        body { 
+                            font-family: Arial, sans-serif; 
                             background: white;
-                            padding: 0;
-                            margin: 0;
+                            width: 100%;
+                            height: 100vh;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
                         }
-                        .print-wrapper {
-                            page-break-inside: avoid;
-                            break-inside: avoid;
-                            padding: 20px;
+                        .print-container {
+                            width: 90%;
+                            max-width: 800px;
                             text-align: center;
                         }
                         .header {
-                            font-size: 22px;
+                            font-size: 24px;
                             font-weight: bold;
                             margin-bottom: 20px;
                             color: #333;
-                            page-break-inside: avoid;
                         }
                         .drawing {
-                            width: 100%;
                             max-width: 100%;
-                            height: auto;
-                            border: 1px solid #ccc;
-                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                            max-height: calc(100vh - 120px);
+                            border: none;
+                            box-shadow: none;
                             page-break-inside: avoid;
-                            break-inside: avoid;
+                            margin-top: 20px;
                         }
-                    
+                                                
                         @media print {
-                            html, body {
-                                height: 100%;
-                                margin: 0;
-                                padding: 0;
+                            body { 
+                                background: white;
                                 -webkit-print-color-adjust: exact;
                                 print-color-adjust: exact;
                             }
-                            .print-wrapper {
-                                page-break-inside: avoid;
-                                break-inside: avoid;
+                            .print-container {
+                                width: 100%;
+                                max-width: none;
+                                height: auto;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: flex-start;
+                                align-items: center;
+                                padding: 15px;
                             }
-                            .header,
-                            .drawing {
+                            .header {
+                                font-size: 20px;
+                                margin-bottom: 35px;
                                 page-break-inside: avoid;
-                                break-inside: avoid;
+                            }
+                            .drawing {
+                                max-width: 100%;
+                                max-height: calc(100vh - 80px);
+                                border: none;
+                                box-shadow: none;
+                                page-break-inside: avoid;
+                                margin-top : 6rem;
                             }
                         }
-                    
+                        
                         @page {
-                            size: A4 portrait;
-                            margin: 1cm;
+                            size: auto;
+                            margin: 0.5in;
                         }
                     </style>
-
                 </head>
                 <body>
-                    <div class="print-wrapper">
-                      <div class="header">Bill Number: ${billnum}</div>
-                      <img class="drawing" src="${dataUrl}" alt="Drawing" />
+                    <div class="print-container">
+                        <div class="header">Bill Number: ${billnum}</div>
+                        <img class="drawing" src="${dataUrl}" alt="Drawing" onload="window.print()">
                     </div>
-
                 </body>
                 </html>
             `;
