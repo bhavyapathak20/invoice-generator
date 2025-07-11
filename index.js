@@ -88,7 +88,7 @@ app.post("/send-otp", async (req, res) => {
 
     const mailOptions = {
         from: 'yourapp@gmail.com',
-        to: 'bhavyapathak40@gmail.com',
+        to: 'vijaytailors1979@gmail.com',
         subject: 'OTP to change password',
         text: `Your OTP is ${otp}`
     };
