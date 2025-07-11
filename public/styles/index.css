@@ -393,6 +393,15 @@
     .submit-btn{
         display: none;
     }
+    
+    .logo-info {
+        display: block !important;
+        font-size: 0.6rem;
+    }
+
+    .logo-on-bill{
+        margin-left: 3rem;
+    }
 
     .logo-on-bill{
         margin: 0;
