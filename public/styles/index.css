@@ -396,7 +396,7 @@
     
     .logo-info {
         display: block !important;
-        font-size: 0.48rem;
+        font-size: 0.54rem;
     }
 
     .logo-on-bill{
@@ -406,10 +406,6 @@
     .logo-on-bill{
         margin: 0;
         margin-left: 20%;
-    }
-
-    .product-desc, .money-each{
-        border-bottom : 0.5px dotted black;
     }
 
 
