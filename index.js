@@ -144,7 +144,7 @@ app.post("/change-password", express.json(), async (req, res) => {
 app.get("/new-invoice", async(req,res)=>{
     try{
         const result = await db.query("SELECT MAX(invoice_number) as last_invoice_num FROM invoice_info");
-        const getLastBillNum = result.rows[0].last_invoice_num || 0;
+        const getLastBillNum = result.rows[0].last_invoice_num || 001;
         const nextInvoiceNum = getLastBillNum + 1;
 
         res.render("index", {invoice_number : nextInvoiceNum});
