@@ -149,7 +149,7 @@ app.get("/new-invoice", async(req,res)=>{
 
         const formattedInvoiceNum = String(nextInvoiceNum).padStart(3, '0');
 
-        res.render("index", {invoice_number : nextInvoiceNum});
+        res.render("index", {invoice_number : formattedInvoiceNum});
     }catch(err){
         console.log(err);
         res.status(500).send("Error Loading the form");
